@@ -11,3 +11,9 @@ Later down the line I would like to create features for recording and storing ex
 **An important detail** about this app is that I don't want to design it for scale. There are plenty of good workout apps out there that scale way better because people develop them as their full time job. As this is both a side project to gain some experience, and a way for me to replace something that I pay money for with something I can build myself. I want to design this to perfectly fit my use case and my needs, while still following good practices.
 
 ## Architecture
+
+During the first few milestones of this application's development, there will be no backend, because there is not data persistance or retreival. There will only be a frontend which makes calls to the external APINinja Exercise API. Because of this I will use an MVP design pattern on the frontend. UI code will be isolated from input and API data processing, and the model/service layer will isolate API calls from the rest of the frontend.
+
+Later, when data persistance is added, things will become slightly more complex. I will be storing my own business model objects in a database, but retreiving exercises from an external API. For now a good option could be fetching exercises from the API, and then querying the database for the data on those selected exercises.
+
+## Tech stack
