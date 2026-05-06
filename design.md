@@ -17,3 +17,5 @@ During the first few milestones of this application's development, there will be
 Later, when data persistance is added, things will become slightly more complex. I will be storing my own business model objects in a database, but retreiving exercises from an external API. For now a good option could be fetching exercises from the API, and then querying the database for the data on those selected exercises.
 
 ## Tech stack
+
+I have decided to use Bun has my main toolkit. After some reading it appears that Bun is the best toolkit option for small projects, because of its fast runtime and 4-in-1 tool nature.
