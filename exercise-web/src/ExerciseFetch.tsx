@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
 import {
   Select,
@@ -8,17 +9,29 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import { Button } from "./components/ui/button";
 
 export function ExerciseFetch() {
+  const [muscleGroup, setMuscleGroup] = useState("");
+
+  const getExerciseByMuscle = async (muscle: String): Promise<String> => {
+    const results = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=biceps', {
+        headers: {
+            'X-Api-Key': 'g4o0QGdpeUHCVf3nipKZFN0jOd8E18Nyc3ddi4ZY'
+        }
+    });
+    return results.json()
+  }
+
   return (
-    <Card>
+    <Card className="flex justify-center">
       <CardHeader>
         <CardTitle>Fetch an Exercise</CardTitle>
         <CardDescription>Specify a Muscle group and hit the button to </CardDescription>
       </CardHeader>
       <CardContent>
-        <Select>
+        <Select value={muscleGroup} onValueChange={setMuscleGroup}>
           <SelectTrigger className="w-45">
             <SelectValue placeholder="Muscle Group" />
           </SelectTrigger>
@@ -33,7 +46,7 @@ export function ExerciseFetch() {
             </SelectGroup>
 
             <SelectSeparator></SelectSeparator>
-            
+
             <SelectGroup>
               <SelectLabel className="SelectLabel">Lower Body</SelectLabel>
               <SelectItem value="quadriceps">Quads</SelectItem>
@@ -43,7 +56,9 @@ export function ExerciseFetch() {
             </SelectGroup>
           </SelectContent>
         </Select>
+
+        <Button className="m-4" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
       </CardContent>
     </Card>
-  )
+  );
 }
