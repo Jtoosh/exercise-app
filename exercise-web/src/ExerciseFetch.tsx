@@ -11,17 +11,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "./components/ui/button";
+import type { Exercise } from "./lib/exercise";
 
 export function ExerciseFetch() {
   const [muscleGroup, setMuscleGroup] = useState("");
+  const [fetchedExercise, setFetchedExercise] = useState("")
 
-  const getExerciseByMuscle = async (muscle: String): Promise<String> => {
+  const getExerciseByMuscle = async (muscle: String): Promise<Exercise> => {
     const results = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=biceps', {
         headers: {
             'X-Api-Key': 'g4o0QGdpeUHCVf3nipKZFN0jOd8E18Nyc3ddi4ZY'
-        }
+      }
     });
-    return results.json()
+    const data = await results.json()
+    setFetchedExercise(data)
+    return data as Exercise
   }
 
   return (
@@ -58,6 +62,7 @@ export function ExerciseFetch() {
         </Select>
 
         <Button className="m-4" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
+        <div>{fetchedExercise}</div>
       </CardContent>
     </Card>
   );
