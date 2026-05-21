@@ -11,21 +11,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "./components/ui/button";
-import type { Exercise } from "./lib/exercise";
+import  { Exercise } from "./lib/exercise";
+import {ExerciseInfo} from "@/ExerciseInfo.tsx";
 
 export function ExerciseFetch() {
   const [muscleGroup, setMuscleGroup] = useState("");
-  const [fetchedExercise, setFetchedExercise] = useState("")
+  const [fetchedExercise, setFetchedExercise] = useState<Exercise>(new Exercise("", "","", "", "", [], ""))
 
   const getExerciseByMuscle = async (muscle: String): Promise<Exercise> => {
-    const results = await fetch('https://api.api-ninjas.com/v1/exercises?muscle=biceps', {
+    const results = await fetch(`https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`, {
         headers: {
             'X-Api-Key': 'g4o0QGdpeUHCVf3nipKZFN0jOd8E18Nyc3ddi4ZY'
       }
     });
-    const data = await results.json()
-    setFetchedExercise(data)
-    return data as Exercise
+    const data = await results.json() as Exercise[];
+    setFetchedExercise(data[0]!)
+    return data[0]!
   }
 
   return (
@@ -62,7 +63,7 @@ export function ExerciseFetch() {
         </Select>
 
         <Button className="m-4" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
-        <div>{fetchedExercise}</div>
+        <ExerciseInfo fetchedExercise={fetchedExercise}></ExerciseInfo>
       </CardContent>
     </Card>
   );
