@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import {
   Select,
   SelectContent,
@@ -10,9 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "./components/ui/button";
-import  { Exercise } from "./lib/exercise";
-import {ExerciseInfo} from "@/ExerciseInfo.tsx";
+import { Button } from "../components/ui/button";
+import  { Exercise } from "../lib/exercise";
+import {ExerciseInfo} from "./ExerciseInfo.tsx";
 
 export function ExerciseFetch() {
   const [muscleGroup, setMuscleGroup] = useState("");

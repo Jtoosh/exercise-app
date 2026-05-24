@@ -1,13 +1,13 @@
 import "./index.css";
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
-import { ExerciseFetch } from "./ExerciseFetch";
+import { ExerciseFetch } from "./view/ExerciseFetch";
+import { Homepage } from "./view/HomePage";
 
 export function App() {
   return (
     <div className="container mx-auto p-8 text-center relative z-10">
-      <ExerciseFetch></ExerciseFetch>
+      {/*<ExerciseFetch></ExerciseFetch>*/}
+      <Homepage></Homepage>
     </div>
   );
 }
