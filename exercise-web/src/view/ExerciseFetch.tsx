@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "../components/ui/button";
 import  { Exercise } from "../lib/exercise";
-import {ExerciseInfo} from "./ExerciseInfo.tsx";
+import {ExerciseInfo} from "@/view/ExerciseInfo";
 
 export function ExerciseFetch() {
   const [muscleGroup, setMuscleGroup] = useState("");
