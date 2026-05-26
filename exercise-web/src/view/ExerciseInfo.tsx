@@ -7,13 +7,13 @@ interface Props{
 
 export function ExerciseInfo(props:Props) {
     return (
-        <Card className="flex justify-center">
+        <Card className="flex justify-center whitespace-pre-wrap">
             <CardHeader>
                 <CardTitle>{props.fetchedExercise.name}</CardTitle>
-                <CardDescription>{props.fetchedExercise.muscle + "\n" + props.fetchedExercise.equipments + "\n" + props.fetchedExercise.difficulty}</CardDescription>
+                <CardDescription>{ "Equipment: " + props.fetchedExercise.equipments + "\nType: " + props.fetchedExercise.type + "\nDifficulty: " +  props.fetchedExercise.difficulty}</CardDescription>
             </CardHeader>
             <CardContent>
-                <p>{props.fetchedExercise.instructions}</p>
+                <p>{"Instructions: " +props.fetchedExercise.instructions + "\n\nOther safety info: " + props.fetchedExercise.safety_info}</p>
             </CardContent>
         </Card>
     )

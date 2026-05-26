@@ -33,7 +33,7 @@ export function ExerciseFetch() {
     <Card className="flex justify-center">
       <CardHeader>
         <CardTitle>Fetch an Exercise</CardTitle>
-        <CardDescription>Specify a Muscle group and hit the button to </CardDescription>
+        <CardDescription>Specify a Muscle group and hit the button to retrieve an exercise.</CardDescription>
       </CardHeader>
       <CardContent>
         <Select value={muscleGroup} onValueChange={setMuscleGroup}>
@@ -62,7 +62,7 @@ export function ExerciseFetch() {
           </SelectContent>
         </Select>
 
-        <Button className="m-4" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
+        <Button className="m-4 text-heading bg-linear-to-r from-teal-200 to-lime-200 hover:bg-linear-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-full text-sm px-4 py-2.5 text-center leading-5" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
         <ExerciseInfo fetchedExercise={fetchedExercise}></ExerciseInfo>
       </CardContent>
     </Card>

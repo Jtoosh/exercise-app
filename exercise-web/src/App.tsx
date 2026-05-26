@@ -1,15 +1,9 @@
 import "./index.css";
 
-import { ExerciseFetch } from "./view/ExerciseFetch";
 import { Homepage } from "./view/HomePage";
-import Layout from "./view/Layout";
 
 export function App() {
-  return (
-    <div>
-     <Layout children={Homepage()}></Layout> 
-    </div>
-  );
+  return <Homepage></Homepage>;
 }
 
 export default App;

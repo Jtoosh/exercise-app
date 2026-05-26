@@ -1,4 +1,5 @@
 import { useSpring, animated } from "@react-spring/web";
+import { NavLink } from "react-router";
 
 export function Homepage() {
   const [springs, api] = useSpring(() => ({
@@ -16,9 +17,12 @@ export function Homepage() {
 
   return (
     <animated.div onClick={handleClick} style={{ ...springs }} >
-      <div className="text-center">
-        <h1 className="text-7xl font-semibold ">Welcome to Exercise Generator</h1>
-        <p className="text-xl">No bells and whistles. Just good old-fashioned workouts to help you stay healthy.</p>
+      <div className="text-center space-y-4">
+        <h1 className="text-7xl font-semibold p4">Welcome to Exercise Generator</h1>
+        <p className="text-xl p4">No bells and whistles. Just good old-fashioned workouts to help you stay healthy.</p>
+        <NavLink to="/fetchExercise">
+          <button type="button" className="text-white bg-linear-to-r from-cyan-500 to-blue-500 hover:bg-linear-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-full text-sm px-4 py-2.5 text-center leading-5 p4">Get Started</button>
+        </NavLink>
       </div>
     </animated.div>
   );
