@@ -1,0 +1,35 @@
+name: Deploy to Github Pages
+
+on: 
+  push:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: create artifact
+      run: |
+        cd exercise-web
+        bun run build
+    
+
+    - name: Update pages artifact
+      uses: actions/upload-pages-artifact@3
+      with:
+        path: exercise-web/dist
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.output.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Github Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
+  
