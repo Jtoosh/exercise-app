@@ -22,7 +22,9 @@ jobs:
         bun install
 
     - name: Build Tailwind CSS
-      run: bun run tailwind:build
+      run: |
+        cd exercise-web
+        bun run tailwind:build
 
     - name: create artifact
       run: |
