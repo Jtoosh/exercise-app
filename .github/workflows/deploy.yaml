@@ -18,14 +18,16 @@ jobs:
 
     - name: install dependencies
       run: |
-        bun init
+        cd exercise-web
         bun install
+
+    - name: Build Tailwind CSS
+      run: bun run tailwind:build
 
     - name: create artifact
       run: |
         cd exercise-web
         bun run build
-    
 
     - name: Update pages artifact
       uses: actions/upload-pages-artifact@v3
