@@ -17,7 +17,9 @@ jobs:
       uses: oven-sh/setup-bun@v2
 
     - name: install dependencies
-      run : bun install
+      run: |
+        bun init
+        bun install
 
     - name: create artifact
       run: |
