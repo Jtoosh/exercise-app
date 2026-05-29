@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=production bun src/index.ts",
-    "tailwind:dev": "bunx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --watch",
-    "tailwind:build": "bunx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --minify",
-    "dev": "bun run tailwind:dev & bun --hot src/index.ts"
+    "tailwind:dev": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/output.css --watch",
+    "tailwind:build": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/output.css --minify",
+    "dev": "bun run tailwind:dev & bun --hot src/index.ts",
+    "build": "bun run build.ts"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

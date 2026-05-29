@@ -1,4 +1,3 @@
-import "./index.css";
 
 import { Homepage } from "./view/HomePage";
 
