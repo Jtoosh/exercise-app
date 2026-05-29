@@ -21,14 +21,10 @@ jobs:
         cd exercise-web
         bun install
 
-    - name: Build Tailwind CSS
+    - name: Build Tailwind CSS and artifact
       run: |
         cd exercise-web
         bun run tailwind:build
-
-    - name: create artifact
-      run: |
-        cd exercise-web
         bun run build
 
     - name: Update pages artifact
