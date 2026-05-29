@@ -1,4 +1,4 @@
-import "../dist/output.css";
+import "./index.css";
 
 import { Homepage } from "./view/HomePage";
 
