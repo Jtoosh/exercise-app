@@ -24,8 +24,8 @@ jobs:
     - name: Build Tailwind CSS and artifact
       run: |
         cd exercise-web
-        bun run tailwind:build
         bun run build
+        bun run tailwind:build
 
     - name: Update pages artifact
       uses: actions/upload-pages-artifact@v3
