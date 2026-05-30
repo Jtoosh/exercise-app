@@ -17,7 +17,7 @@ const app = (
     <BrowserRouter>
       <Routes>
         <Route path="/exercise-app/" element={<App />} />
-        <Route path="/exercise-app/fetchExercise" element= {<ExerciseFetch></ExerciseFetch>} />
+        <Route path="/fetchExercise" element= {<ExerciseFetch></ExerciseFetch>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

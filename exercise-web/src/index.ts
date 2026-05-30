@@ -27,6 +27,16 @@ const server = serve({
         message: `Hello, ${name}!`,
       });
     },
+    
+    "/output.css": async () => {
+      const file = Bun.file("./dist/output.css");
+      if (await file.exists()) {
+        return new Response(file, {
+          headers: { "Content-Type": "text/css" },
+        });
+      }
+      return new Response("Not Found", { status: 404 });
+    },
   },
 
   development: process.env.NODE_ENV !== "production" && {
