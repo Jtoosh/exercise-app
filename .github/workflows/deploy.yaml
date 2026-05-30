@@ -25,7 +25,6 @@ jobs:
       run: |
         cd exercise-web
         bun run build
-        bun run tailwind:build
 
     - name: Update pages artifact
       uses: actions/upload-pages-artifact@v3
