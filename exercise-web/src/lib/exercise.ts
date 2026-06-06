@@ -53,5 +53,3 @@ export class Exercise {
 
 
 }
-
-export type Workout = Exercise[]
