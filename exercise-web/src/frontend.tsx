@@ -10,16 +10,16 @@ import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { ExerciseFetch } from "./view/ExerciseFetch";
-import {WorkoutBuilder} from "@/view/WorkoutBuilder.tsx";
+// import {WorkoutBuilder} from "@/view/WorkoutBuilder.tsx";
 
 const elem = document.getElementById("root")!;
 const app = (
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/exercise-app">
       <Routes>
-          <Route path="/exercise-app/" element={<App />} />
+          <Route path="/" element={<App />} />
           <Route path="/fetchExercise" element= {<ExerciseFetch></ExerciseFetch>} />
-          <Route path="/buildWorkout" element={<WorkoutBuilder></WorkoutBuilder>}></Route>
+          {/*<Route path="/buildWorkout" element={<WorkoutBuilder></WorkoutBuilder>}></Route>*/}
       </Routes>
     </BrowserRouter>
   </StrictMode>

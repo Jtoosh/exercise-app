@@ -1,4 +1,4 @@
-import { rm } from "node:fs/promises";
+import { rm, copyFile } from "node:fs/promises";
 import path from "node:path";
 import { $ } from "bun";
 
@@ -19,3 +19,5 @@ const entrypoints = [...new Bun.Glob("src/**/*.html").scanSync()];
 });
 
 await $`bunx @tailwindcss/cli -i ./src/index.css -o ./styles/output.css --minify`;
+
+await copyFile(path.join(outdir, "index.html"), path.join(outdir, "404.html"));

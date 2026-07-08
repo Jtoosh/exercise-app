@@ -25,8 +25,9 @@ export function ExerciseFetch() {
       }
     });
     const data = await results.json() as Exercise[];
-    setFetchedExercise(data[0]!)
-    return data[0]!
+    const index = Math.floor(Math.random() * data.length);
+    setFetchedExercise(data[index]!)
+    return data[index]!
   }
 
   return (
