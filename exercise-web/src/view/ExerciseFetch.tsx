@@ -13,21 +13,16 @@ import {
 import { Button } from "../components/ui/button";
 import  { Exercise } from "../lib/exercise";
 import {ExerciseInfo} from "@/view/ExerciseInfo";
+import {ExerciseFetchPresenter} from "@/presenter/ExerciseFetchPresenter.ts";
 
 export function ExerciseFetch() {
+  const presenter = new ExerciseFetchPresenter()
   const [muscleGroup, setMuscleGroup] = useState("");
   const [fetchedExercise, setFetchedExercise] = useState<Exercise>(new Exercise("", "","", "", "", [], ""))
 
-  const getExerciseByMuscle = async (muscle: String): Promise<Exercise> => {
-    const results = await fetch(`https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`, {
-        headers: {
-            'X-Api-Key': 'g4o0QGdpeUHCVf3nipKZFN0jOd8E18Nyc3ddi4ZY'
-      }
-    });
-    const data = await results.json() as Exercise[];
-    const index = Math.floor(Math.random() * data.length);
-    setFetchedExercise(data[index]!)
-    return data[index]!
+  const getExerciseByMuscle = async (muscle: String): Promise<void> => {
+    const exercise = await presenter.getExerciseByMuscle(muscle);
+    setFetchedExercise(exercise!)
   }
 
   return (
