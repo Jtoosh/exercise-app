@@ -13,19 +13,18 @@ const server = serve({
           method: "GET",
         });
       },
-      async PUT(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "PUT",
-        });
-      },
     },
 
-    "/api/hello/:name": async req => {
-      const name = req.params.name;
-      return Response.json({
-        message: `Hello, ${name}!`,
+    "/api/exercises": async req => {
+      const url = new URL(req.url);
+      const muscle = url.searchParams.get("muscle");
+      const res = await fetch(`https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`, {
+        headers: {
+          "X-Api-Key": process.env.API_NINJAS_KEY!,
+        },
       });
+      const data = await res.json();
+      return Response.json(data);
     },
     
     "/output.css": async () => {
