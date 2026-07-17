@@ -20,7 +20,7 @@ export function Homepage() {
       <div className="text-center space-y-4">
         <h1 className="text-7xl font-semibold p4">Welcome to Exercise Generator</h1>
         <p className="text-xl p4">No bells and whistles. Just good old-fashioned workouts to help you stay healthy.</p>
-        <NavLink to="/fetchExercise">
+        <NavLink to="/buildWorkout">
           <button type="button" className="text-white bg-linear-to-r from-cyan-500 to-blue-500 hover:bg-linear-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-full text-sm px-4 py-2.5 text-center leading-5 p4">Get Started</button>
         </NavLink>
       </div>

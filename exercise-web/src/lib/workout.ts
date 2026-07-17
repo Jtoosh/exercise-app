@@ -14,7 +14,7 @@ export class Workout {
     this._type = type;
     this._focus = focus;
     this._exercises = exercises
-    this._duration = 5.5 * exercises.length
+    this._duration = 5 * exercises.length
   }
 
   get type(): ExerciseType {

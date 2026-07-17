@@ -7,7 +7,7 @@ export class ExerciseFetchPresenter {
     constructor() {
         this.service = new ExerciseService()
     }
-    public getExerciseByMuscle = async (muscle: String): Promise<Exercise> => {
+    public async getExerciseByMuscle  (muscle: String): Promise<Exercise> {
         return await this.service.getExerciseByMuscle(muscle)
     }
 }
