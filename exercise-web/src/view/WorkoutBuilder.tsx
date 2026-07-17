@@ -16,7 +16,7 @@ import {Label} from "@/components/ui/label"
 
 export function WorkoutBuilder() {
     const [muscleGroup, setMuscleGroup] = useState<string>("")
-    const [duration, setDuration] = useState<number>(0)
+    const [duration, setDuration] = useState<number>(35)
     const presenter = new WorkoutBuilderPresenter()
 
     return (
@@ -40,13 +40,13 @@ export function WorkoutBuilder() {
                     </SelectContent>
                 </Select>
 
-                <div className="mx-auto grid w-full max-w-xs gap-3">
+                <div className="grid w-full max-w-[200px] gap-3">
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor={"duration_select"}>Duration</Label>
-                        <span className="text-sm text-muted-foreground">{duration}</span>
+                        <span className="text-sm text-muted-foreground">{duration} min</span>
                     </div>
 
-                    <Slider id={"duration_select"} defaultValue={[35]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0] as number)}/>
+                    <Slider id={"duration_select"} value={[duration]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0])}/>
 
                 </div>
 
