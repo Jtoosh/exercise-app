@@ -18,7 +18,7 @@ import {ExerciseFetchPresenter} from "@/presenter/ExerciseFetchPresenter.ts";
 export function ExerciseFetch() {
   const presenter = new ExerciseFetchPresenter()
   const [muscleGroup, setMuscleGroup] = useState("");
-  const [fetchedExercise, setFetchedExercise] = useState<Exercise>(new Exercise("", "","", "", "", [], ""))
+  const [fetchedExercise, setFetchedExercise] = useState<Exercise | null>(null)
 
   const getExerciseByMuscle = async (muscle: String): Promise<void> => {
     const exercise = await presenter.getExerciseByMuscle(muscle);
@@ -59,7 +59,7 @@ export function ExerciseFetch() {
         </Select>
 
         <Button className="m-4 text-heading bg-linear-to-r from-teal-200 to-lime-200 hover:bg-linear-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-full text-sm px-4 py-2.5 text-center leading-5" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
-        <ExerciseInfo fetchedExercise={fetchedExercise}></ExerciseInfo>
+        <ExerciseInfo fetchedExercise={fetchedExercise!}></ExerciseInfo>
       </CardContent>
     </Card>
   );
