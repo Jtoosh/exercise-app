@@ -40,13 +40,13 @@ export function WorkoutBuilder() {
                     </SelectContent>
                 </Select>
 
-                <div className="grid w-full max-w-[200px] gap-3">
+                <div className="grid w-full max-w-50 gap-3">
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor={"duration_select"}>Duration</Label>
                         <span className="text-sm text-muted-foreground">{duration} min</span>
                     </div>
 
-                    <Slider id={"duration_select"} value={[duration]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0])}/>
+                    <Slider id={"duration_select"} value={[duration]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0] ?? 20)}/>
 
                 </div>
 

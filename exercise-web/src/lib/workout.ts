@@ -33,4 +33,18 @@ export class Workout {
     return this._exercises;
   }
 
+  public static decodeMuscleGroup(muscleGroup: MuscleGroup): Muscle[] {
+    switch (muscleGroup){
+      case "legs":
+        return ["quadriceps", "hamstrings", "glutes", "calves", ]
+      case "pull":
+        return ["biceps", "lats", "lower_back", "middle_back", "traps"]
+      case "push":
+        return ["triceps", "chest", "forearms"]
+      default:
+        return ["abdominals"];
+    }
+
+  }
+
 }

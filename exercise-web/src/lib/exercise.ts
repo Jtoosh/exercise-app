@@ -1,6 +1,22 @@
 export type Difficulty = "beginner" | "intermediate" | "";
 
-export type Muscle = "biceps" | "";
+export type Muscle =
+    | "abdominals"
+    | "abductors"
+    | "adductors"
+    | "biceps"
+    | "calves"
+    | "chest"
+    | "forearms"
+    | "glutes"
+    | "hamstrings"
+    | "lats"
+    | "lower_back"
+    | "middle_back"
+    | "neck"
+    | "quadriceps"
+    | "traps"
+    | "triceps";
 
 export type ExerciseType = "strength" | "";
 
