@@ -6,27 +6,6 @@ const server = serve({
     // Serve index.html for all unmatched routes.
     "/*": index,
 
-    "/api/hello": {
-      async GET(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "GET",
-        });
-      },
-    },
-
-    "/api/exercises": async req => {
-      const url = new URL(req.url);
-      const muscle = url.searchParams.get("muscle");
-      const res = await fetch(`https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`, {
-        headers: {
-          "X-Api-Key": process.env.API_NINJAS_KEY!,
-        },
-      });
-      const data = await res.json();
-      return Response.json(data);
-    },
-    
     "/output.css": async () => {
       const file = Bun.file("./dist/output.css");
       if (await file.exists()) {
