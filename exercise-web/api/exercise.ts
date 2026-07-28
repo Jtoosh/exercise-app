@@ -8,7 +8,7 @@ export default async function handler(req: Request) {
 
     const res = await fetch(`https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`, {
         headers: {
-            "X-Api-Key": process.env.API_NINJAS_KEY || "",
+            "X-Api-Key": process.env.NINJA_API_KEY || "",
         },
     });
 
