@@ -4,7 +4,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarRail
 } from "@/components/ui/sidebar"
 
 export function AppSidebar() {

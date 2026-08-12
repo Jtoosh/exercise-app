@@ -10,7 +10,7 @@ export class WorkoutBuilderPresenter {
     }
 
     public async buildWorkout(muscleGroup: MuscleGroup, duration: number): Promise<Workout> {
-        const exerciseCount = duration / 5
+        const exerciseCount = duration / 7.5
         const muscles: Muscle[] = Workout.decodeMuscleGroup(muscleGroup)
         const exercises: Exercise[] = []
 
