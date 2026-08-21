@@ -38,7 +38,7 @@ export class Workout {
       case "legs":
         return ["quadriceps", "hamstrings", "glutes", "calves", ]
       case "pull":
-        return ["biceps", "lats", "lower_back", "middle_back", "traps"]
+        return ["biceps", "lats", "lower back", "middle back", "traps"]
       case "push":
         return ["triceps", "chest", "forearms"]
       default:

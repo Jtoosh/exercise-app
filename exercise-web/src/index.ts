@@ -1,10 +1,11 @@
 import { serve } from "bun";
 import index from "./index.html";
 
+import exerciseHandler from "../api/exercise.ts";
+
 const server = serve({
   routes: {
-    // Serve index.html for all unmatched routes.
-    "/*": index,
+    "/api/exercise": exerciseHandler,
 
     "/output.css": async () => {
       const file = Bun.file("./dist/output.css");
@@ -15,6 +16,9 @@ const server = serve({
       }
       return new Response("Not Found", { status: 404 });
     },
+
+    // Serve index.html for all unmatched routes.
+    "/*": index,
   },
 
   development: process.env.NODE_ENV !== "production" && {
