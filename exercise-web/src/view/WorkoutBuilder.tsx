@@ -15,6 +15,7 @@ import {Slider} from "@/components/ui/slider"
 import {Label} from "@/components/ui/label"
 import type {Workout} from "@/lib/workout.ts";
 import {ExerciseInfo} from "@/view/ExerciseInfo.tsx";
+import {Checkbox} from "@/components/ui/checkbox.tsx";
 
 const presenter = new WorkoutBuilderPresenter()
 
@@ -101,14 +102,16 @@ export function WorkoutBuilder() {
                     <fieldset className="grid w-full max-w-80 gap-2 mt-4">
                         <legend className="text-sm font-medium mb-1">Available equipment</legend>
                         {equipmentOptions.map((option) => (
-                            <label key={option.value ?? "none"} className="flex items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
+                            <div key={option.value ?? "none"} className="flex items-center gap-2">
+                                <Checkbox
+                                    id={`equipment-${option.value ?? "none"}`}
                                     checked={selectedEquipment.includes(option.value)}
-                                    onChange={(event) => toggleEquipment(option.value, event.target.checked)}
+                                    onCheckedChange={(checked) => toggleEquipment(option.value, checked === true)}
                                 />
-                                <span>{option.label}</span>
-                            </label>
+                                <Label htmlFor={`equipment-${option.value ?? "none"}`} className="font-normal">
+                                    {option.label}
+                                </Label>
+                            </div>
                         ))}
                     </fieldset>
 
