@@ -16,6 +16,7 @@ import {Label} from "@/components/ui/label"
 import type {Workout} from "@/lib/workout.ts";
 import {ExerciseInfo} from "@/view/ExerciseInfo.tsx";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
+import {type AvailableEquipment, EQUIPMENT_OPTIONS} from "@/lib/equipment.ts";
 
 const presenter = new WorkoutBuilderPresenter()
 
@@ -25,29 +26,13 @@ interface WorkoutState {
     error: string | null
 }
 
-const equipmentOptions: { label: string; value: string | null }[] = [
-    {label: "Medicine ball", value: "medicine ball"},
-    {label: "Dumbbell", value: "dumbbell"},
-    {label: "Body only", value: "body only"},
-    {label: "Bands", value: "bands"},
-    {label: "Kettlebells", value: "kettlebells"},
-    {label: "Foam roll", value: "foam roll"},
-    {label: "Cable", value: "cable"},
-    {label: "Machine", value: "machine"},
-    {label: "Barbell", value: "barbell"},
-    {label: "Exercise ball", value: "exercise ball"},
-    {label: "E-Z curl bar", value: "e-z curl bar"},
-    {label: "Other", value: "other"},
-    {label: "No equipment", value: null},
-]
-
 export function WorkoutBuilder() {
     const [muscleGroup, setMuscleGroup] = useState<string>("")
     const [duration, setDuration] = useState<number>(35)
-    const [selectedEquipment, setSelectedEquipment] = useState<(string | null)[]>([])
+    const [selectedEquipment, setSelectedEquipment] = useState<AvailableEquipment[]>([])
     const [state, setState] = useState<WorkoutState>({workout: null, loading: false, error: null})
 
-    function toggleEquipment(option: string | null, checked: boolean) {
+    function toggleEquipment(option: AvailableEquipment, checked: boolean) {
         setSelectedEquipment((current) => {
             if (checked) {
                 return current.includes(option) ? current : [...current, option]
@@ -101,7 +86,7 @@ export function WorkoutBuilder() {
 
                     <fieldset className="grid w-full max-w-80 gap-2 mt-4">
                         <legend className="text-sm font-medium mb-1">Available equipment</legend>
-                        {equipmentOptions.map((option) => (
+                        {EQUIPMENT_OPTIONS.map((option) => (
                             <div key={option.value ?? "none"} className="flex items-center gap-2">
                                 <Checkbox
                                     id={`equipment-${option.value ?? "none"}`}
