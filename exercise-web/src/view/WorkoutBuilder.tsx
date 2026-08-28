@@ -24,10 +24,37 @@ interface WorkoutState {
     error: string | null
 }
 
+const equipmentOptions: { label: string; value: string | null }[] = [
+    {label: "Medicine ball", value: "medicine ball"},
+    {label: "Dumbbell", value: "dumbbell"},
+    {label: "Body only", value: "body only"},
+    {label: "Bands", value: "bands"},
+    {label: "Kettlebells", value: "kettlebells"},
+    {label: "Foam roll", value: "foam roll"},
+    {label: "Cable", value: "cable"},
+    {label: "Machine", value: "machine"},
+    {label: "Barbell", value: "barbell"},
+    {label: "Exercise ball", value: "exercise ball"},
+    {label: "E-Z curl bar", value: "e-z curl bar"},
+    {label: "Other", value: "other"},
+    {label: "No equipment", value: null},
+]
+
 export function WorkoutBuilder() {
     const [muscleGroup, setMuscleGroup] = useState<string>("")
     const [duration, setDuration] = useState<number>(35)
+    const [selectedEquipment, setSelectedEquipment] = useState<(string | null)[]>([])
     const [state, setState] = useState<WorkoutState>({workout: null, loading: false, error: null})
+
+    function toggleEquipment(option: string | null, checked: boolean) {
+        setSelectedEquipment((current) => {
+            if (checked) {
+                return current.includes(option) ? current : [...current, option]
+            }
+
+            return current.filter((equipment) => equipment !== option)
+        })
+    }
 
     async function handleBuildWorkout() {
         setState({workout: null, loading: true, error: null})
@@ -70,6 +97,20 @@ export function WorkoutBuilder() {
                         <Slider id={"duration_select"} value={[duration]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0] ?? 20)}/>
 
                     </div>
+
+                    <fieldset className="grid w-full max-w-80 gap-2 mt-4">
+                        <legend className="text-sm font-medium mb-1">Available equipment</legend>
+                        {equipmentOptions.map((option) => (
+                            <label key={option.value ?? "none"} className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedEquipment.includes(option.value)}
+                                    onChange={(event) => toggleEquipment(option.value, event.target.checked)}
+                                />
+                                <span>{option.label}</span>
+                            </label>
+                        ))}
+                    </fieldset>
 
                     <Button
                         disabled={state.loading || !muscleGroup}
