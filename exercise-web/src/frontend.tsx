@@ -13,19 +13,25 @@ import { ExerciseFetch } from "./view/ExerciseFetch";
 import {WorkoutBuilder} from "@/view/WorkoutBuilder.tsx";
 // import {WorkoutBuilder} from "@/view/WorkoutBuilder.tsx";
 
+import Layout from "./view/Layout";
+
 const elem = document.getElementById("root")!;
+const basename = window.location.pathname.startsWith("/exercise-app") ? "/exercise-app" : "";
+
 const app = (
   <StrictMode>
-    <BrowserRouter basename="/exercise-app">
-      <Routes>
+    <BrowserRouter basename={basename}>
+      <Layout>
+        <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/buildWorkout" element={<WorkoutBuilder/>} />
-          <Route path="/fetchExercise" element= {<ExerciseFetch></ExerciseFetch>} />
-          {/*<Route path="/buildWorkout" element={<WorkoutBuilder></WorkoutBuilder>}></Route>*/}
-      </Routes>
+          <Route path="/buildWorkout" element={<WorkoutBuilder />} />
+          <Route path="/fetchExercise" element={<ExerciseFetch />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   </StrictMode>
 );
+
 
 // https://bun.com/docs/bundler/hot-reloading#import-meta-hot-data
 (import.meta.hot.data.root ??= createRoot(elem)).render(app);
