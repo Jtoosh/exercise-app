@@ -1,16 +1,28 @@
 import type { Exercise } from "@/lib/exercise.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ChevronDown, ChevronUp, Dumbbell, Flame, Target, Layers } from "lucide-react";
+import { ChevronDown, ChevronUp, Dumbbell, Flame, Target, Layers, RefreshCw, CheckCircle2, Circle } from "lucide-react";
 import { useState } from "react";
+
 
 interface Props {
     fetchedExercise: Exercise | null;
+    exerciseIndex?: number;
+    isCompleted?: boolean;
+    onToggleCompleted?: () => void;
+    onSwap?: () => Promise<void> | void;
 }
 
-export function ExerciseInfo({ fetchedExercise }: Props) {
+export function ExerciseInfo({
+    fetchedExercise,
+    exerciseIndex,
+    isCompleted = false,
+    onToggleCompleted,
+    onSwap,
+}: Props) {
     const [showAllSteps, setShowAllSteps] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+    const [swapping, setSwapping] = useState(false);
 
     if (!fetchedExercise) return null;
 
@@ -24,8 +36,66 @@ export function ExerciseInfo({ fetchedExercise }: Props) {
 
     const activeImageUrl = fetchedExercise.getImageUrl(selectedImageIndex) || img0;
 
+    const handleSwapClick = async () => {
+        if (!onSwap || swapping) return;
+        setSwapping(true);
+        try {
+            await onSwap();
+        } finally {
+            setSwapping(false);
+        }
+    };
+
     return (
-        <Card className="w-full max-w-2xl mx-auto overflow-hidden border border-border/50 bg-card shadow-lg transition-all duration-300">
+        <Card
+            className={`w-full max-w-2xl mx-auto overflow-hidden border bg-card shadow-lg transition-all duration-300 ${
+                isCompleted ? "border-emerald-500/50 bg-emerald-950/10 opacity-85" : "border-border/50"
+            }`}
+        >
+            {/* Header Toolbar: Completion Checkbox & Swap Button */}
+            <div className="flex items-center justify-between px-6 pt-4 pb-1 border-b border-border/40 text-xs font-semibold text-muted-foreground">
+                <div className="flex items-center gap-2">
+                    {onToggleCompleted && (
+                        <button
+                            type="button"
+                            onClick={onToggleCompleted}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium transition-colors"
+                        >
+                            {isCompleted ? (
+                                <>
+                                    <CheckCircle2 className="h-4 w-4 fill-emerald-500 text-slate-950" />
+                                    <span>Completed</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Circle className="h-4 w-4 text-emerald-500" />
+                                    <span>Mark Complete</span>
+                                </>
+                            )}
+                        </button>
+                    )}
+                    {typeof exerciseIndex === "number" && (
+                        <span className="bg-muted px-2 py-0.5 rounded text-foreground font-mono">
+                            Exercise #{exerciseIndex + 1}
+                        </span>
+                    )}
+                </div>
+
+                {onSwap && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={swapping}
+                        onClick={handleSwapClick}
+                        className="h-8 text-xs gap-1.5 hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                        <RefreshCw className={`h-3.5 w-3.5 ${swapping ? "animate-spin" : ""}`} />
+                        {swapping ? "Swapping..." : "Swap Exercise"}
+                    </Button>
+                )}
+            </div>
+
             {/* Image / Visual Header */}
             {hasImages && (
                 <div className="relative w-full bg-slate-950/80 rounded-t-xl overflow-hidden flex flex-col items-center justify-center p-4">
@@ -73,10 +143,12 @@ export function ExerciseInfo({ fetchedExercise }: Props) {
                 </div>
             )}
 
-            <CardHeader className="pb-3 pt-5 px-6">
+            <CardHeader className="pb-3 pt-4 px-6">
                 <div className="flex flex-col gap-2">
-                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
-                        {fetchedExercise.name}
+                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight text-foreground flex items-center justify-between">
+                        <span className={isCompleted ? "line-through text-muted-foreground" : ""}>
+                            {fetchedExercise.name}
+                        </span>
                     </CardTitle>
                     {/* Gym Spec Badges */}
                     <div className="flex flex-wrap gap-2 items-center">
@@ -158,4 +230,5 @@ export function ExerciseInfo({ fetchedExercise }: Props) {
         </Card>
     );
 }
+
 
