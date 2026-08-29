@@ -15,6 +15,8 @@ import {Slider} from "@/components/ui/slider"
 import {Label} from "@/components/ui/label"
 import type {Workout} from "@/lib/workout.ts";
 import {ExerciseInfo} from "@/view/ExerciseInfo.tsx";
+import {Checkbox} from "@/components/ui/checkbox.tsx";
+import {type AvailableEquipment, EQUIPMENT_OPTIONS} from "@/lib/equipment.ts";
 
 const presenter = new WorkoutBuilderPresenter()
 
@@ -27,7 +29,18 @@ interface WorkoutState {
 export function WorkoutBuilder() {
     const [muscleGroup, setMuscleGroup] = useState<string>("")
     const [duration, setDuration] = useState<number>(35)
+    const [selectedEquipment, setSelectedEquipment] = useState<AvailableEquipment[]>([])
     const [state, setState] = useState<WorkoutState>({workout: null, loading: false, error: null})
+
+    function toggleEquipment(option: AvailableEquipment, checked: boolean) {
+        setSelectedEquipment((current) => {
+            if (checked) {
+                return current.includes(option) ? current : [...current, option]
+            }
+
+            return current.filter((equipment) => equipment !== option)
+        })
+    }
 
     async function handleBuildWorkout() {
         setState({workout: null, loading: true, error: null})
@@ -70,6 +83,22 @@ export function WorkoutBuilder() {
                         <Slider id={"duration_select"} value={[duration]} max={70} min={20} step={5} onValueChange={(value) => setDuration(value[0] ?? 20)}/>
 
                     </div>
+
+                    <fieldset className="grid w-full max-w-80 gap-2 mt-4">
+                        <legend className="text-sm font-medium mb-1">Available equipment</legend>
+                        {EQUIPMENT_OPTIONS.map((option) => (
+                            <div key={option.value ?? "none"} className="flex items-center gap-2">
+                                <Checkbox
+                                    id={`equipment-${option.value ?? "none"}`}
+                                    checked={selectedEquipment.includes(option.value)}
+                                    onCheckedChange={(checked) => toggleEquipment(option.value, checked === true)}
+                                />
+                                <Label htmlFor={`equipment-${option.value ?? "none"}`} className="font-normal">
+                                    {option.label}
+                                </Label>
+                            </div>
+                        ))}
+                    </fieldset>
 
                     <Button
                         disabled={state.loading || !muscleGroup}
