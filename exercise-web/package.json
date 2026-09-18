@@ -8,7 +8,10 @@
     "tailwind:dev": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/output.css --watch",
     "tailwind:build": "bunx @tailwindcss/cli -i ./src/index.css -o ./dist/output.css --minify",
     "dev": "bun run tailwind:dev & bun --hot src/index.ts",
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "db:migrate": "bun server/db/migrate.ts",
+    "test:db": "bun test server/repository/WorkoutRepository.integration.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.11",

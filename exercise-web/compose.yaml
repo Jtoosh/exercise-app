@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: exercise
+      POSTGRES_PASSWORD: exercise
+      POSTGRES_DB: exercise
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - exercise_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exercise -d exercise"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+volumes:
+  exercise_db:
