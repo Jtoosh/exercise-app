@@ -1,3 +1,4 @@
+import { WorkoutLogger } from "@/view/WorkoutLogger";
 import type { MuscleGroup } from "@/lib/workout.ts";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
@@ -275,6 +276,8 @@ export function WorkoutBuilder() {
                     </CardHeader>
                 </Card>
             )}
+
+            <WorkoutLogger workout={state.workout} />
 
             {/* Exercise Cards */}
             {state.workout &&
