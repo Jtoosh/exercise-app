@@ -31,8 +31,9 @@ Without `DATABASE_URL`, generation still works and the logger explains how to en
 ## Recording a workout
 
 On the workout builder, create/select a profile, generate a workout, and click **Start workout timer**.
-The logger takes a snapshot of those exercises. Enter each completed set's reps and weight, choose
-kg or lb, and remove skipped exercises. Zero weight supports bodyweight movements; zero reps supports
+Enter each completed set's reps and weight inside its exercise card, alongside the instructions.
+Choose kg or lb in the shared workout controls. Use **Skip exercise** to omit an exercise; **Add set**
+includes it again. Swapping and regenerating are disabled until the log is saved or discarded. Zero weight supports bodyweight movements; zero reps supports
 timed exercises. **Finish workout** stops the timer; **Save workout** persists the record. History
 shows the most recent 100 workouts with all sets and actual elapsed duration, including rest time.
 Unsaved logs live in browser memory and are lost on reload/navigation. Changing weight unit relabels
@@ -50,7 +51,10 @@ and server-side authorization. Database credentials stay on the Bun server.
 ## Structure and API
 
 - `src/lib/workoutLog.ts`: persistence contracts and validation, separate from generated workout estimates.
-- `src/view/WorkoutLogger.tsx`: profile, timer, set entry, and history view.
+- `src/view/WorkoutLogger.tsx`: shared profile, timer, unit, and save controls.
+- `src/view/ExerciseSetLogger.tsx`: set entry composed inside each exercise info card.
+- `src/view/WorkoutHistory.tsx`: saved history below the exercise cards.
+- `src/hooks/useWorkoutLog.ts`: shared logging state and presenter integration.
 - `src/presenter/WorkoutLogPresenter.ts`: logging lifecycle with injected service and clock.
 - `src/service/WorkoutLogService.ts`: browser HTTP service.
 - `api/workouts.ts`: validated HTTP handlers with an injected repository.

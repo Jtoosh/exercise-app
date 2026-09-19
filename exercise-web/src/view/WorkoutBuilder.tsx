@@ -1,3 +1,6 @@
+import { useWorkoutLog } from "@/hooks/useWorkoutLog";
+import { ExerciseSetLogger } from "@/view/ExerciseSetLogger";
+import { WorkoutHistory } from "@/view/WorkoutHistory";
 import { WorkoutLogger } from "@/view/WorkoutLogger";
 import type { MuscleGroup } from "@/lib/workout.ts";
 import { useState } from "react";
@@ -29,6 +32,8 @@ interface WorkoutState {
 }
 
 export function WorkoutBuilder() {
+    const logger = useWorkoutLog();
+    const [swapping, setSwapping] = useState(false);
     const [muscleGroup, setMuscleGroup] = useState<string>("");
     const [duration, setDuration] = useState<number>(35);
     const [selectedEquipment, setSelectedEquipment] = useState<AvailableEquipment[]>([]);
@@ -57,6 +62,7 @@ export function WorkoutBuilder() {
     }
 
     async function handleBuildWorkout() {
+        if (logger.log || swapping) return;
         setState({ workout: null, loading: true, error: null });
         try {
             const result = await presenter.buildWorkout(muscleGroup as MuscleGroup, duration, {
@@ -70,7 +76,8 @@ export function WorkoutBuilder() {
     }
 
     async function handleSwapExercise(index: number) {
-        if (!state.workout) return;
+        if (!state.workout || logger.log || swapping) return;
+        setSwapping(true);
         try {
             const updatedWorkout = await presenter.swapExercise(state.workout, index, {
                 equipment: selectedEquipment,
@@ -79,7 +86,7 @@ export function WorkoutBuilder() {
             setState((prev) => ({ ...prev, workout: updatedWorkout }));
         } catch (err) {
             console.error("Failed to swap exercise:", err);
-        }
+        } finally { setSwapping(false); }
     }
 
     function handleToggleCompleted(index: number) {
@@ -217,7 +224,7 @@ export function WorkoutBuilder() {
                     </div>
 
                     <Button
-                        disabled={state.loading || !muscleGroup}
+                        disabled={state.loading || swapping || !!logger.log || !muscleGroup}
                         className="w-full text-heading bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-200 cursor-pointer disabled:opacity-50"
                         onClick={handleBuildWorkout}
                     >
@@ -258,6 +265,7 @@ export function WorkoutBuilder() {
                                 <Button
                                     variant="outline"
                                     size="sm"
+                                    disabled={state.loading || swapping || !!logger.log}
                                     onClick={handleBuildWorkout}
                                     className="gap-1 text-xs"
                                 >
@@ -277,7 +285,7 @@ export function WorkoutBuilder() {
                 </Card>
             )}
 
-            <WorkoutLogger workout={state.workout} />
+            <WorkoutLogger workout={state.workout} controller={logger} workoutChanging={swapping || state.loading} />
 
             {/* Exercise Cards */}
             {state.workout &&
@@ -288,9 +296,18 @@ export function WorkoutBuilder() {
                         fetchedExercise={exercise}
                         isCompleted={state.workout?.isCompleted(index)}
                         onToggleCompleted={() => handleToggleCompleted(index)}
-                        onSwap={() => handleSwapExercise(index)}
+                        onSwap={logger.log || swapping ? undefined : () => handleSwapExercise(index)}
+                        logging={logger.log && logger.log.exercises[index] && (
+                            <ExerciseSetLogger
+                                exercise={logger.log.exercises[index]}
+                                weightUnit={logger.log.weightUnit}
+                                disabled={logger.busy}
+                                onChange={sets => logger.updateSets(index, sets)}
+                            />
+                        )}
                     />
                 ))}
+            <WorkoutHistory history={logger.history} />
         </div>
     );
 }

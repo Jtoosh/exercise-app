@@ -2,11 +2,12 @@ import type { Exercise } from "@/lib/exercise.ts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { ChevronDown, ChevronUp, Dumbbell, Flame, Target, Layers, RefreshCw, CheckCircle2, Circle } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 
 interface Props {
     fetchedExercise: Exercise | null;
+    logging?: ReactNode;
     exerciseIndex?: number;
     isCompleted?: boolean;
     onToggleCompleted?: () => void;
@@ -19,6 +20,7 @@ export function ExerciseInfo({
     isCompleted = false,
     onToggleCompleted,
     onSwap,
+    logging,
 }: Props) {
     const [showAllSteps, setShowAllSteps] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -181,6 +183,8 @@ export function ExerciseInfo({
             </CardHeader>
 
             <CardContent className="px-6 pb-6 pt-2 flex flex-col gap-4">
+                {logging}
+
                 {/* Numbered Quick Cues */}
                 <div className="flex flex-col gap-2.5">
                     <h4 className="text-xs uppercase font-bold tracking-wider text-muted-foreground flex items-center gap-1.5">
