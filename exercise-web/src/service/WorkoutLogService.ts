@@ -5,8 +5,10 @@ export interface WorkoutLogService {
     save(userId: string, workout: WorkoutLog): Promise<void>;
     history(userId: string): Promise<WorkoutHistory>;
 }
+type RequestTransport = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+
 export class HttpWorkoutLogService implements WorkoutLogService {
-    constructor(private readonly request: typeof fetch = fetch) {}
+    constructor(private readonly request: RequestTransport = (...args) => globalThis.fetch(...args)) {}
     private async json(path: string, body?: unknown) {
         const response = await this.request(path, body === undefined ? undefined : {
             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),

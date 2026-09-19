@@ -2,7 +2,7 @@
 
 ## Diagnosis
 
-`HttpWorkoutLogService` defaults its injected `request` property to native `fetch`
+Before the fix, `HttpWorkoutLogService` defaulted its injected `request` property to native `fetch`
 (`src/service/WorkoutLogService.ts:9`). Calling `this.request(...)` on line 11
 supplies the service instance as the native function's receiver (`this`). Browser
 `Window.fetch` rejects that incompatible receiver with “Illegal invocation”.
@@ -42,7 +42,7 @@ remains part of implementation below.
 
    ```ts
    constructor(
-       private readonly request: typeof fetch = (...args) => globalThis.fetch(...args)
+       private readonly request: RequestTransport = (...args) => globalThis.fetch(...args)
    ) {}
    ```
 
@@ -71,4 +71,20 @@ remains part of implementation below.
 5. Commit the fix and regression tests together with a conventional message such as
    `fix: preserve browser fetch receiver in workout log service`.
 
-This document is a plan; the application fix has not yet been applied.
+## Implementation and verification
+
+Implemented the forwarding arrow and a callable `RequestTransport` type. The type
+uses standard browser request arguments instead of requiring Bun's extra
+`fetch.preconnect` property on injected transports.
+
+- Added four service tests covering the receiver, all request payloads, server error
+  messages/fallbacks, and network errors. The receiver regression failed with the
+  original implementation and passed after the fix.
+- All 22 tests passed, including PostgreSQL integration tests; production build passed.
+- Headless Chrome exercised the actual app at localhost:3000/buildWorkout: profile
+  creation, workout generation, timer start/finish, save, reload, and restored history
+  containing 10 reps at 42.5 kg. Profile/workout GETs and POSTs returned 200/201.
+- A simulated HTTP 503 displayed the server's error message in the view.
+- Temporary browser-test data was removed after verification.
+- TypeScript still reports the seven previously identified errors in the existing
+  exercise presenters/tests; the changed service and its tests introduce no errors.
