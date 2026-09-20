@@ -50,8 +50,8 @@ export function ExerciseInfo({
 
     return (
         <Card
-            className={`w-full max-w-2xl mx-auto overflow-hidden border bg-card shadow-lg transition-all duration-300 ${
-                isCompleted ? "border-emerald-500/50 bg-emerald-950/10 opacity-85" : "border-border/50"
+            className={`w-full max-w-3xl mx-auto overflow-hidden border bg-card shadow-sm transition-all duration-300 ${
+                isCompleted ? "border-primary/40" : "border-border/50"
             }`}
         >
             {/* Header Toolbar: Completion Checkbox & Swap Button */}
@@ -61,16 +61,16 @@ export function ExerciseInfo({
                         <button
                             type="button"
                             onClick={onToggleCompleted}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
                         >
                             {isCompleted ? (
                                 <>
-                                    <CheckCircle2 className="h-4 w-4 fill-emerald-500 text-slate-950" />
+                                    <CheckCircle2 className="h-4 w-4 text-primary" />
                                     <span>Completed</span>
                                 </>
                             ) : (
                                 <>
-                                    <Circle className="h-4 w-4 text-emerald-500" />
+                                    <Circle className="h-4 w-4 text-primary" />
                                     <span>Mark Complete</span>
                                 </>
                             )}
@@ -100,8 +100,8 @@ export function ExerciseInfo({
 
             {/* Image / Visual Header */}
             {hasImages && (
-                <div className="relative w-full bg-slate-950/80 rounded-t-xl overflow-hidden flex flex-col items-center justify-center p-4">
-                    <div className="relative w-full max-w-sm aspect-4/3 flex items-center justify-center bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                <div className="relative w-full bg-muted/50 rounded-t-xl overflow-hidden flex flex-col items-center justify-center p-4">
+                    <div className="relative w-full max-w-sm aspect-4/3 flex items-center justify-center bg-card rounded-lg overflow-hidden border border-border">
                         {activeImageUrl ? (
                             <img
                                 src={activeImageUrl}
@@ -110,20 +110,20 @@ export function ExerciseInfo({
                                 loading="lazy"
                             />
                         ) : (
-                            <div className="text-slate-500 text-sm flex items-center gap-2">
+                            <div className="text-muted-foreground text-sm flex items-center gap-2">
                                 <Dumbbell className="h-6 w-6" /> No image available
                             </div>
                         )}
                         {/* Pose Selector Tabs */}
                         {img0 && img1 && (
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md px-3 py-1 rounded-full border border-slate-700/80 text-xs shadow-md">
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-card/95 backdrop-blur-md px-3 py-1 rounded-full border border-border text-xs shadow-md">
                                 <button
                                     type="button"
                                     onClick={() => setSelectedImageIndex(0)}
                                     className={`px-2.5 py-0.5 rounded-full font-medium transition-colors ${
                                         selectedImageIndex === 0
-                                            ? "bg-emerald-500 text-slate-950 font-bold"
-                                            : "text-slate-300 hover:text-white"
+                                            ? "bg-primary text-primary-foreground font-bold"
+                                            : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >
                                     Start Pose
@@ -133,8 +133,8 @@ export function ExerciseInfo({
                                     onClick={() => setSelectedImageIndex(1)}
                                     className={`px-2.5 py-0.5 rounded-full font-medium transition-colors ${
                                         selectedImageIndex === 1
-                                            ? "bg-emerald-500 text-slate-950 font-bold"
-                                            : "text-slate-300 hover:text-white"
+                                            ? "bg-primary text-primary-foreground font-bold"
+                                            : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >
                                     Finish Pose
@@ -148,32 +148,32 @@ export function ExerciseInfo({
             <CardHeader className="pb-3 pt-4 px-6">
                 <div className="flex flex-col gap-2">
                     <CardTitle className="text-xl md:text-2xl font-bold tracking-tight text-foreground flex items-center justify-between">
-                        <span className={isCompleted ? "line-through text-muted-foreground" : ""}>
+                        <span className={isCompleted ? "text-foreground" : ""}>
                             {fetchedExercise.name}
                         </span>
                     </CardTitle>
                     {/* Gym Spec Badges */}
                     <div className="flex flex-wrap gap-2 items-center">
                         {fetchedExercise.muscle && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 capitalize">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 capitalize">
                                 <Target className="h-3.5 w-3.5" />
                                 {fetchedExercise.muscle}
                             </span>
                         )}
                         {fetchedExercise.equipment.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 capitalize">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground border border-border capitalize">
                                 <Dumbbell className="h-3.5 w-3.5" />
                                 {fetchedExercise.equipment.join(", ")}
                             </span>
                         )}
                         {fetchedExercise.difficulty && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 capitalize">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-accent/50 text-accent-foreground border border-accent capitalize">
                                 <Flame className="h-3.5 w-3.5" />
                                 {fetchedExercise.difficulty}
                             </span>
                         )}
                         {fetchedExercise.type && (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 capitalize">
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-muted text-muted-foreground border border-border capitalize">
                                 <Layers className="h-3.5 w-3.5" />
                                 {fetchedExercise.type}
                             </span>
@@ -200,7 +200,7 @@ export function ExerciseInfo({
                                     key={idx}
                                     className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-border/40 text-sm leading-relaxed text-foreground"
                                 >
-                                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs">
                                         {idx + 1}
                                     </span>
                                     <p className="flex-1 pt-0.5">{step}</p>

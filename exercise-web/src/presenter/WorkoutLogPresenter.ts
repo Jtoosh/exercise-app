@@ -1,6 +1,7 @@
 import type { Workout } from "@/lib/workout";
 import { validateProfile, validateWorkout, type WorkoutLog } from "@/lib/workoutLog";
 import { HttpWorkoutLogService, type WorkoutLogService } from "@/service/WorkoutLogService";
+import { initialWeight } from "@/lib/weight";
 export class WorkoutLogPresenter {
     constructor(private readonly service: WorkoutLogService = new HttpWorkoutLogService(),
         private readonly now: () => Date = () => new Date()) {}
@@ -9,8 +10,8 @@ export class WorkoutLogPresenter {
     history(userId: string) { return this.service.history(userId); }
     start(workout: Workout): WorkoutLog {
         const timestamp = this.now().toISOString();
-        return { id: crypto.randomUUID(), startedAt: timestamp, finishedAt: timestamp, weightUnit: "kg",
-            exercises: workout.exercises.map(exercise => ({ exerciseId: exercise.id, name: exercise.name, sets: [{ reps: 0, weight: 0 }] })) };
+        return { id: crypto.randomUUID(), startedAt: timestamp, finishedAt: timestamp, weightUnit: "lb",
+            exercises: workout.exercises.map(exercise => ({ exerciseId: exercise.id, name: exercise.name, sets: [{ reps: 0, weight: initialWeight(exercise.equipment) }] })) };
     }
     finish(workout: WorkoutLog): WorkoutLog { return { ...workout, finishedAt: this.now().toISOString() }; }
     async save(userId: string, workout: WorkoutLog) { await this.service.save(userId, validateWorkout(workout)); }

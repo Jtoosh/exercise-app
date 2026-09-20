@@ -17,7 +17,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4 border-b border-border/40 flex items-center justify-between">
         <div className="flex items-center gap-2 font-bold text-lg">
-          <Dumbbell className="h-6 w-6 text-emerald-500" />
+          <Dumbbell className="h-6 w-6 text-sidebar-primary" />
           <span>FitGen</span>
         </div>
       </SidebarHeader>

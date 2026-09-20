@@ -1,9 +1,11 @@
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
-import { ExerciseSetLogger } from "@/view/ExerciseSetLogger";
+import { WorkoutOverview } from "./WorkoutOverview";
+import { WorkoutExercise } from "./WorkoutExercise";
+import { useSearchParams } from "react-router";
 import { WorkoutHistory } from "@/view/WorkoutHistory";
 import { WorkoutLogger } from "@/view/WorkoutLogger";
 import type { MuscleGroup } from "@/lib/workout.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { WorkoutBuilderPresenter } from "@/presenter/WorkoutBuilderPresenter.ts";
@@ -18,10 +20,9 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import type { Workout } from "@/lib/workout.ts";
-import { ExerciseInfo } from "@/view/ExerciseInfo.tsx";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { type AvailableEquipment, EQUIPMENT_OPTIONS } from "@/lib/equipment.ts";
-import { Dumbbell, Sliders, CheckCircle2, RotateCcw } from "lucide-react";
+import { Dumbbell, Sliders, ArrowLeft } from "lucide-react";
 
 const presenter = new WorkoutBuilderPresenter();
 
@@ -33,12 +34,29 @@ interface WorkoutState {
 
 export function WorkoutBuilder() {
     const logger = useWorkoutLog();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const requestedScreen = searchParams.get("screen");
+    const requestedIndex = Number(searchParams.get("exercise") ?? -1);
     const [swapping, setSwapping] = useState(false);
     const [muscleGroup, setMuscleGroup] = useState<string>("");
     const [duration, setDuration] = useState<number>(35);
     const [selectedEquipment, setSelectedEquipment] = useState<AvailableEquipment[]>([]);
     const [resistancePreference, setResistancePreference] = useState<"balanced" | "freeweight" | "cable_machine" | "all">("balanced");
     const [state, setState] = useState<WorkoutState>({ workout: null, loading: false, error: null });
+
+    const screen = state.workout && requestedScreen !== "setup"
+        ? requestedScreen === "exercise" && Number.isInteger(requestedIndex) && state.workout.exercises[requestedIndex]
+            ? "exercise" : "workout"
+        : "setup";
+
+    function openExercise(index: number, replace = false) {
+        setSearchParams({ screen: "exercise", exercise: String(index) }, { replace });
+    }
+
+    useEffect(() => {
+        document.querySelector<HTMLElement>("[data-screen-heading]")?.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+    }, [screen, requestedIndex]);
 
     function toggleEquipment(option: AvailableEquipment, checked: boolean) {
         setSelectedEquipment((current) => {
@@ -70,6 +88,7 @@ export function WorkoutBuilder() {
                 resistancePreference,
             });
             setState({ workout: result, loading: false, error: null });
+            setSearchParams({ screen: "workout" });
         } catch (e: any) {
             setState({ workout: null, loading: false, error: e?.message || "Failed to generate workout. Please try again." });
         }
@@ -85,28 +104,33 @@ export function WorkoutBuilder() {
             });
             setState((prev) => ({ ...prev, workout: updatedWorkout }));
         } catch (err) {
-            console.error("Failed to swap exercise:", err);
+            setState(current => ({ ...current, error: err instanceof Error ? err.message : "Could not swap exercise. Please try again." }));
         } finally { setSwapping(false); }
     }
 
-    function handleToggleCompleted(index: number) {
-        if (!state.workout) return;
-        const updated = state.workout.toggleCompleted(index);
-        setState((prev) => ({ ...prev, workout: updated }));
+    function completeCircuit() {
+        if (!state.workout || swapping || logger.busy) return;
+        const updated = state.workout.completeExercise(requestedIndex);
+        setState(current => ({ ...current, workout: updated }));
+        const nextIndex = updated.nextIncompleteIndex(requestedIndex);
+        if (nextIndex === null) {
+            if (logger.log && !logger.finished) logger.finish();
+            setSearchParams({ screen: "workout" }, { replace: true });
+        } else {
+            openExercise(nextIndex, true);
+        }
     }
-
-    const completedCount = state.workout ? state.workout.completedIndexes.size : 0;
-    const totalCount = state.workout ? state.workout.exercises.length : 0;
-    const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
     return (
         <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full px-2 py-4">
+            {screen === "setup" && <>
+            {state.workout && <Button variant="ghost" className="self-start" onClick={() => setSearchParams({ screen: "workout" })}><ArrowLeft className="size-4" />Back to workout</Button>}
             {/* Workout Generator Options Form */}
             <Card className="shadow-md border-border/60">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                        <Dumbbell className="h-6 w-6 text-primary" /> Workout Generator
-                    </CardTitle>
+                    <CardTitle><h1 data-screen-heading tabIndex={-1} className="text-2xl font-bold flex items-center gap-2">
+                        <Dumbbell className="h-6 w-6 text-primary" /> Build your workout
+                    </h1></CardTitle>
                     <CardDescription>
                         Customize muscle focus, time, equipment availability, and resistance type.
                     </CardDescription>
@@ -156,7 +180,7 @@ export function WorkoutBuilder() {
                     {/* Resistance Distribution Preference */}
                     <div className="flex flex-col gap-2 pt-2 border-t border-border/40">
                         <Label htmlFor="resistance_select" className="font-semibold text-sm flex items-center gap-1.5">
-                            <Sliders className="h-4 w-4 text-emerald-500" /> Resistance Balance
+                            <Sliders className="h-4 w-4 text-primary" /> Resistance Balance
                         </Label>
                         <Select
                             value={resistancePreference}
@@ -225,7 +249,7 @@ export function WorkoutBuilder() {
 
                     <Button
                         disabled={state.loading || swapping || !!logger.log || !muscleGroup}
-                        className="w-full text-heading bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-500 hover:to-emerald-600 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-200 cursor-pointer disabled:opacity-50"
+                        className="w-full h-12 font-semibold"
                         onClick={handleBuildWorkout}
                     >
                         {state.loading ? "Generating Workout..." : "Generate Workout"}
@@ -233,82 +257,30 @@ export function WorkoutBuilder() {
                 </CardContent>
             </Card>
 
+            </>}
+
             {state.error && (
                 <Card className="border-destructive bg-destructive/10">
                     <CardContent className="p-4">
-                        <p className="text-destructive font-medium text-center">{state.error}</p>
+                        <p role="alert" className="text-destructive font-medium text-center">{state.error}</p>
                     </CardContent>
                 </Card>
             )}
 
-            {/* Generated Workout Summary & Active Progress Tracker */}
-            {state.workout && (
-                <Card className="border-emerald-500/30 bg-emerald-950/10 shadow-md">
-                    <CardHeader className="pb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div>
-                                <CardTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
-                                    <CheckCircle2 className="h-5 w-5 text-emerald-500" /> Active Workout
-                                </CardTitle>
-                                <CardDescription className="capitalize mt-1">
-                                    Focus: <span className="font-semibold text-foreground">{typeof state.workout.focus === "string" ? state.workout.focus : state.workout.focus.join(", ")}</span> | Duration: <span className="font-semibold text-foreground">{state.workout.duration} min</span>
-                                </CardDescription>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <div className="flex flex-col items-end">
-                                    <span className="text-sm font-bold text-emerald-500">
-                                        {completedCount} / {totalCount} Done
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">{progressPercent}% Completed</span>
-                                </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={state.loading || swapping || !!logger.log}
-                                    onClick={handleBuildWorkout}
-                                    className="gap-1 text-xs"
-                                >
-                                    <RotateCcw className="h-3.5 w-3.5" /> Regenerate
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Progress Bar */}
-                        <div className="w-full bg-muted h-2 rounded-full overflow-hidden mt-3">
-                            <div
-                                className="bg-emerald-500 h-full transition-all duration-500"
-                                style={{ width: `${progressPercent}%` }}
-                            />
-                        </div>
-                    </CardHeader>
-                </Card>
-            )}
-
-            <WorkoutLogger workout={state.workout} controller={logger} workoutChanging={swapping || state.loading} />
-
-            {/* Exercise Cards */}
-            {state.workout &&
-                state.workout.exercises.map((exercise, index) => (
-                    <ExerciseInfo
-                        key={`${exercise.id || exercise.name}-${index}`}
-                        exerciseIndex={index}
-                        fetchedExercise={exercise}
-                        isCompleted={state.workout?.isCompleted(index)}
-                        onToggleCompleted={() => handleToggleCompleted(index)}
-                        onSwap={logger.log || swapping ? undefined : () => handleSwapExercise(index)}
-                        logging={logger.log && logger.log.exercises[index] && (
-                            <ExerciseSetLogger
-                                exercise={logger.log.exercises[index]}
-                                weightUnit={logger.log.weightUnit}
-                                disabled={logger.busy}
-                                onChange={sets => logger.updateSets(index, sets)}
-                            />
-                        )}
-                    />
-                ))}
-            <WorkoutHistory history={logger.history} />
+            {screen === "workout" && state.workout && <>
+                <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm text-muted-foreground">Your plan, one circuit at a time.</p>
+                    <Button variant="outline" disabled={!!logger.log || logger.busy} onClick={() => setSearchParams({ screen: "setup" })}>Edit setup</Button>
+                </div>
+                <WorkoutOverview workout={state.workout} onOpenExercise={openExercise} />
+                <WorkoutLogger workout={state.workout} controller={logger} workoutChanging={swapping || state.loading} />
+                <details className="rounded-xl border bg-card p-4"><summary className="cursor-pointer font-medium">Workout history</summary>
+                    <div className="pt-4"><WorkoutHistory history={logger.history} /></div>
+                </details>
+            </>}
+            {screen === "exercise" && state.workout && <WorkoutExercise workout={state.workout} index={requestedIndex}
+                logger={logger} swapping={swapping} onBack={() => setSearchParams({ screen: "workout" })}
+                onComplete={completeCircuit} onSwap={() => handleSwapExercise(requestedIndex)} />}
         </div>
     );
 }
-

@@ -55,11 +55,8 @@ export function useWorkoutLog(presenter = defaultPresenter) {
     }
     function finish() { if (log) { setLog(presenter.finish(log)); setFinished(true); } }
     function discard() { setLog(null); setFinished(false); }
-    function setWeightUnit(weightUnit: WorkoutLog["weightUnit"]) {
-        setLog(current => current && ({ ...current, weightUnit }));
-    }
     return { users, userId, setUserId, name, setName, history, log, finished, busy, message, elapsed,
-        createUser, updateSets, start, finish, save, discard, setWeightUnit };
+        createUser, updateSets, start, finish, save, discard };
 }
 
 export type WorkoutLogController = ReturnType<typeof useWorkoutLog>;

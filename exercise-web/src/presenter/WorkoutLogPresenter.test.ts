@@ -16,6 +16,7 @@ test("presenter records actual time and saves a snapshot through the injected se
     const presenter = new WorkoutLogPresenter(service, () => currentTime);
     const workout = new Workout("strength", "legs", [new Exercise("Squat", "strength", "quadriceps", "beginner")]);
     const started = presenter.start(workout);
+    expect(started.weightUnit).toBe("lb");
     started.exercises[0]!.sets = [{ reps: 12, weight: 20.5 }];
     currentTime = new Date("2026-01-01T12:20:00Z");
     const finished = presenter.finish(started);

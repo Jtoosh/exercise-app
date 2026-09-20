@@ -53,6 +53,19 @@ export class Workout {
     return new Workout(this._type, this._focus, [...this._exercises], nextCompleted);
   }
 
+  public completeExercise(index: number): Workout {
+    if (!this._exercises[index] || this.isCompleted(index)) return this;
+    return this.toggleCompleted(index);
+  }
+
+  public nextIncompleteIndex(afterIndex: number): number | null {
+    for (let offset = 1; offset <= this._exercises.length; offset++) {
+      const candidate = (afterIndex + offset) % this._exercises.length;
+      if (!this.isCompleted(candidate)) return candidate;
+    }
+    return null;
+  }
+
   public replaceExercise(index: number, newExercise: Exercise): Workout {
     if (index < 0 || index >= this._exercises.length) {
       return this;
