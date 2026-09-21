@@ -28,23 +28,132 @@ Docker binds the database to localhost and persists its data in the `exercise_db
 `docker compose down` stops it without deleting history. Use your own PostgreSQL URL if preferred.
 Without `DATABASE_URL`, generation still works and the logger explains how to enable persistence.
 
-## Vercel deployment
+## Production PostgreSQL on Vercel
 
-Set the Vercel project **Root Directory** to `exercise-web`. The checked-in `vercel.json`
-uses the Bun runtime (required by Bun SQL), runs `bun run build`, and serves `dist`.
-It also routes `/exercise-app` and its client-side screens to the app without intercepting
-root `/api/*` requests. Keep the client's API URLs at `/api/users` and `/api/workouts`.
+The production app is at `https://jamesteuscher.click/exercise-app`; its API lives at
+`https://jamesteuscher.click/api/*`. PostgreSQL is a separate managed service, not a
+Vercel function or the local Docker database. This app uses Bun SQL directly; no Neon
+SDK is required.
 
-Set `DATABASE_URL` in the project's **Production** environment to a reachable PostgreSQL
-instance. Apply migrations to that database with `bun run db:migrate` from a trusted
-shell configured with the production connection URL, then redeploy. Migrations are
-explicit; they do not run during builds or requests. A local Docker database URL will
-not be reachable from Vercel. Never commit connection strings.
+### 1. Authenticate and link the existing project
 
-Verify `GET /api/users` returns HTTP 200 with a JSON array, then select/create a profile,
-start the timer, log a set, finish, save, and confirm the workout appears in history.
-A plain-text 404 indicates a missing route; an initialization 503 means database/runtime
-configuration needs attention. Repository failures are recorded in function runtime logs.
+Run these commands from `exercise-web` (the directory containing this README):
+
+```sh
+npx vercel login
+npx vercel link --project <existing-project-name> --scope <team-slug>
+npx vercel whoami
+npx vercel integration list
+npx vercel env ls production
+```
+
+Choose the **existing project serving jamesteuscher.click**, not a new project. Check
+its Vercel **Root Directory** is `exercise-web`. The checked-in `vercel.json` selects
+Bun (`bunVersion: "1.x"`), runs `bun run build`, serves `dist`, and handles the
+`/exercise-app` client routes. Installing dependencies with Bun alone does not select
+the Bun function runtime, which is required for `import { SQL } from "bun"`.
+
+If `whoami` reports `login_required`, finish its browser login before continuing.
+The connected Vercel app and CLI have separate authentication; a connected app that
+lists no teams does not provide access to your project.
+
+### 2. Provision or connect Neon PostgreSQL
+
+First inspect the project's **Storage** tab and `vercel integration list`. Reuse an
+existing production database if one is already present; do not create duplicates or
+replace a database containing workout history.
+
+For a new database, use **Storage → Create Database → Neon** in Vercel, or:
+
+```sh
+npx vercel integration add neon --name exercise-prod --environment production --no-env-pull --metadata auth=false
+```
+
+Choose the Free plan if available and a region near the Vercel function region.
+Review any account, terms, or billing prompts before accepting. `auth=false` leaves
+Neon's optional authentication product disabled; the app currently uses its own
+simple profiles. `--no-env-pull` preserves your local development environment files.
+The dashboard offers the same provisioning path if CLI installation requires a
+browser step. [Neon on Vercel](https://vercel.com/integrations/neon) and the
+[Vercel integration CLI reference](https://vercel.com/docs/cli/integration) describe
+these options.
+
+Connect the resource to this project's **Production** environment. Use separate
+resources or Neon branches for Preview/Development; do not connect them to production
+workout data. For a Vercel-managed integration, connection variables are provisioned
+when the resource is connected. Verify their names and targets:
+
+```sh
+npx vercel env ls production
+```
+
+The application requires the exact name **`DATABASE_URL`**. If a resource prefix was
+selected, map its connection URL to `DATABASE_URL` in Vercel's environment settings.
+Use the provider's PostgreSQL connection string, preserving its TLS options, normally
+`sslmode=require`. A hostname such as `localhost`, `127.0.0.1`, or a Docker service
+name will not reach your database from Vercel. For a manually managed PostgreSQL
+instance, add `DATABASE_URL` to Production in the dashboard yourself.
+
+Do not put credentials in source code, README examples, browser-visible variables,
+chat messages, or shell command arguments. This application reads `DATABASE_URL`
+only on the server.
+
+### 3. Apply the production schema
+
+After confirming the linked team/project and Production variable, run:
+
+```sh
+env -u DATABASE_URL npx vercel env run --environment production -- bun --no-env-file server/db/migrate.ts
+```
+
+This command fetches the linked project's production variables for the child process
+without saving them to a local file. Clearing the inherited `DATABASE_URL` and
+using Bun's `--no-env-file` prevents a missing production variable from silently
+falling back to a developer's database. Do not replace it with a bare `bun run
+db:migrate` when targeting production: that command can load the local `.env`.
+See the [Vercel environment CLI](https://vercel.com/docs/cli/env) and
+[Bun environment loading](https://bun.com/docs/runtime/environment-variables).
+
+Expected output: `Database migrations applied.` The migration runner creates
+`schema_migrations` and applies `server/db/migrations/001_workout_history.sql`, which
+creates `users`, `workouts`, `workout_exercises`, `exercise_sets`, and `workout_totals`.
+It runs in a transaction with an advisory lock, and an already-applied migration is
+skipped, so retrying is safe. The database role must be allowed to create the tables.
+No profiles or sample workouts are seeded; create your profile in the app.
+
+Migrations are explicit and do not run during builds or incoming API requests.
+For later schema changes, add a new migration and update the runner to apply it;
+do not edit an already-applied SQL file. Take a provider backup or recovery point
+before a data-changing migration, and test it on an isolated database first.
+
+### 4. Redeploy and verify
+
+Environment changes apply to new deployments. Redeploy the latest production commit
+from Vercel's Deployments tab after provisioning and migration. Then check:
+
+```sh
+curl --fail-with-body -i https://jamesteuscher.click/api/users
+```
+
+Expect HTTP 200 and a JSON array (`[]` is correct before the first profile exists).
+In the app, build a workout, create/select a profile, start the timer, log a set,
+complete the circuits, and save. Reload, select the same profile, and confirm the
+saved workout appears in history. This verifies persistence, not just the timer.
+
+### Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| `Workout logging is not configured` (503) | Production `DATABASE_URL` exists, contains a PostgreSQL URL, and was included in a new deployment. Confirm the Bun runtime is enabled. This message comes from initialization, before schema queries. |
+| `Unable to access workout history` (503) | Inspect Vercel runtime logs for database connection, TLS, permission, or missing-table errors. Confirm migration ran against the same database used by Production. |
+| Plain-text 404 or `NOT_FOUND` | Confirm `api/users.ts` and `api/workouts.ts` are deployed from the correct project root; API requests must remain at root `/api/*`. |
+| `FUNCTION_INVOCATION_FAILED` | Check function logs and the deployed `vercel.json` runtime configuration. |
+| Timer remains disabled | Generate a workout and select/create a profile. A failed profile API prevents profile selection. |
+| Works locally only | Local `.env` does not configure Vercel. Check Production scope, resource connection, and redeploy. |
+
+When rotating credentials, update the connected resource/Production variables, repeat
+the schema check and redeploy, and verify `/api/users` again. Keep `.env*` secret files
+and `.vercel` project-link metadata out of Git.
 
 ## Recording a workout
 
