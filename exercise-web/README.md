@@ -104,36 +104,70 @@ only on the server.
 
 ### 3. Apply the production schema
 
-After confirming the linked team/project and Production variable, run:
+The connected database is **`neon-erin-lens`**. Its production connection variables
+are **sensitive/non-exportable** in Vercel. Do not use `vercel env run` or `vercel env
+pull` as a production migration shortcut: CLI 59.23.2 refused to export these secrets
+and loaded the local `.env` instead. A successful migration message from that command
+can refer to the wrong database, even when Bun is passed `--no-env-file`.
+
+Run migrations inside an explicitly requested Vercel production build. The guarded
+runner `server/db/migrateProduction.ts` requires Vercel's production environment and
+a Neon hostname, prefers `DATABASE_URL_UNPOOLED`, and prints schema names only.
+Normal builds and API requests do not run migrations.
+
+From `exercise-web`, after committing the migration you intend to apply, create a
+clean snapshot of that commit. This keeps local `.env` files and unrelated edits out
+of the deployment:
 
 ```sh
-env -u DATABASE_URL npx vercel env run --environment production -- bun --no-env-file server/db/migrate.ts
+migration_checkout=$(mktemp -d)
+git -C .. archive HEAD | tar -x -C "$migration_checkout"
+mkdir -p "$migration_checkout/.vercel"
+cp .vercel/project.json "$migration_checkout/.vercel/project.json"
+python3 - "$migration_checkout/exercise-web/vercel.json" <<'PYCONFIG'
+import json, sys
+path = sys.argv[1]
+with open(path) as source:
+    config = json.load(source)
+config["buildCommand"] = "bun --no-env-file server/db/migrateProduction.ts && bun run build"
+with open(path, "w") as target:
+    json.dump(config, target, indent=2)
+PYCONFIG
+npx vercel deploy --cwd "$migration_checkout" --prod --skip-domain --yes --scope jtooshs-projects
 ```
 
-This command fetches the linked project's production variables for the child process
-without saving them to a local file. Clearing the inherited `DATABASE_URL` and
-using Bun's `--no-env-file` prevents a missing production variable from silently
-falling back to a developer's database. Do not replace it with a bare `bun run
-db:migrate` when targeting production: that command can load the local `.env`.
-See the [Vercel environment CLI](https://vercel.com/docs/cli/env) and
-[Bun environment loading](https://bun.com/docs/runtime/environment-variables).
+This is a one-off build-command override in the temporary snapshot. It does not change
+the repository or the project's default build settings. Vercel supplies production
+secrets internally; they are not exported locally or exposed through a migration API.
+Although `--skip-domain` stages the app before promotion, **the migration changes the
+production database during the build**, so review the SQL first.
 
-Expected output: `Database migrations applied.` The migration runner creates
-`schema_migrations` and applies `server/db/migrations/001_workout_history.sql`, which
-creates `users`, `workouts`, `workout_exercises`, `exercise_sets`, and `workout_totals`.
-It runs in a transaction with an advisory lock, and an already-applied migration is
-skipped, so retrying is safe. The database role must be allowed to create the tables.
-No profiles or sample workouts are seeded; create your profile in the app.
+Require the build log `Production Neon migration verified` containing
+`001_workout_history.sql` and all six tables: `schema_migrations`, `users`, `workouts`,
+`workout_exercises`, `exercise_sets`, and `workout_totals`. The runner uses a transaction
+and advisory lock and skips an already-applied migration. A failure stops the build.
+No profiles or sample workouts are seeded.
 
-Migrations are explicit and do not run during builds or incoming API requests.
+Verify the staged deployment URL printed by the CLI, then promote it:
+
+```sh
+npx vercel curl /api/users --deployment <deployment-url> --scope jtooshs-projects
+npx vercel promote <deployment-url> --yes --scope jtooshs-projects
+```
+
+Expect a JSON array from the staged API before promoting. Future routine Git
+deployments use the original `bun run build` command. Do not use Redeploy on this
+special migration deployment for routine releases; that snapshot includes the one-off
+migration command. The temporary checkout can be removed after successful verification.
+
 For later schema changes, add a new migration and update the runner to apply it;
 do not edit an already-applied SQL file. Take a provider backup or recovery point
 before a data-changing migration, and test it on an isolated database first.
 
 ### 4. Redeploy and verify
 
-Environment changes apply to new deployments. Redeploy the latest production commit
-from Vercel's Deployments tab after provisioning and migration. Then check:
+Environment changes apply to new deployments. After promoting the verified migration
+deployment (or deploying a later ordinary Git commit), check:
 
 ```sh
 curl --fail-with-body -i https://jamesteuscher.click/api/users
