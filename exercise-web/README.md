@@ -41,13 +41,14 @@ Run these commands from `exercise-web` (the directory containing this README):
 
 ```sh
 npx vercel login
-npx vercel link --project <existing-project-name> --scope <team-slug>
+npx vercel link --project exercise-app --scope jtooshs-projects
 npx vercel whoami
 npx vercel integration list
 npx vercel env ls production
 ```
 
-Choose the **existing project serving jamesteuscher.click**, not a new project. Check
+The production project is **`jtooshs-projects/exercise-app`**, owned by **jtoosh's projects**.
+Choose this existing project serving jamesteuscher.click, not a new project. Check
 its Vercel **Root Directory** is `exercise-web`. The checked-in `vercel.json` selects
 Bun (`bunVersion: "1.x"`), runs `bun run build`, serves `dist`, and handles the
 `/exercise-app` client routes. Installing dependencies with Bun alone does not select
@@ -70,7 +71,10 @@ npx vercel integration add neon --name exercise-prod --environment production --
 ```
 
 Choose the Free plan if available and a region near the Vercel function region.
-Review any account, terms, or billing prompts before accepting. `auth=false` leaves
+Review any account, terms, or billing prompts before accepting. On first installation,
+Vercel may return `integration_terms_acceptance_required`. The account owner must
+review and accept the [Neon Marketplace terms in Vercel](https://vercel.com/jtooshs-projects/~/integrations/accept-terms/neon?source=cli),
+then rerun the provisioning command; the non-interactive CLI does not wait for acceptance. `auth=false` leaves
 Neon's optional authentication product disabled; the app currently uses its own
 simple profiles. `--no-env-pull` preserves your local development environment files.
 The dashboard offers the same provisioning path if CLI installation requires a
