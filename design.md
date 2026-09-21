@@ -36,3 +36,8 @@ How to address these points:
   - Make a button with an event listener. On click, it fetches an exercise, and swaps the into the workout object's exercise list at that index.
 - Create a data structure that classifies certain equipment types into one of the two resistance types that I want to train with. Draw from both of these types when generating a workout. (Potential use of Adapter pattern?)
   - DS can be pretty easy in TS. Something like `Type freeweight = dumbbell | barbell | isometric machine"` and then the same for cable resistance. Then when creating a workout, divide num of workouts by 2, ensure 1/2 are free weight, 1/2 are cable.
+
+## Field test notes
+- An integrated stopwatch for rests would be nice
+- evaluate workout "routing"(?) when you do them out of order
+- sort by workout type!! (stretching, strength, olympic weightlifting)
