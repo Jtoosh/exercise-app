@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { SQL } from "bun";
 import { migrate } from "../db/migrate";
 import { PostgresWorkoutRepository } from "./WorkoutRepository";
-import { createWorkoutHandler } from "../../api/workouts";
+import { createWorkoutHandler } from "../http/workoutHandler";
 import type { WorkoutLog } from "../../src/lib/workoutLog";
 
 const databaseUrl = process.env.TEST_DATABASE_URL;

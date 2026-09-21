@@ -13,8 +13,13 @@ export class HttpWorkoutLogService implements WorkoutLogService {
         const response = await this.request(path, body === undefined ? undefined : {
             method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
         });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? "Unable to access workout history.");
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error(`Workout logging is unavailable (HTTP ${response.status}). The server did not return JSON. Please check the API deployment.`);
+        }
+        if (!response.ok) throw new Error(result?.error ?? "Unable to access workout history.");
         return result;
     }
     users(): Promise<UserProfile[]> { return this.json("/api/users"); }

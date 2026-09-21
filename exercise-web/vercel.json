@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "bunVersion": "1.x",
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/exercise-app",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/exercise-app/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/exercise-app/buildWorkout",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/exercise-app/fetchExercise",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/buildWorkout",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/fetchExercise",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/exercise-app/:path*",
+      "destination": "/:path*"
+    }
+  ]
+}

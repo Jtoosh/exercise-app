@@ -62,3 +62,11 @@ test("network failures propagate to the presenter and view", async () => {
     const request = Object.assign(async () => { throw new TypeError("Failed to fetch"); }, { preconnect: fetch.preconnect });
     await expect(new HttpWorkoutLogService(request).users()).rejects.toThrow("Failed to fetch");
 });
+
+test("plain text Vercel errors and HTML fallbacks produce actionable messages", async () => {
+    for (const [status, body] of [[404, "The page could not be found\n\nNOT_FOUND"],
+        [500, "A server error has occurred\n\nFUNCTION_INVOCATION_FAILED"], [200, "<!doctype html><html></html>"]] as const) {
+        const service = new HttpWorkoutLogService(async () => new Response(body, { status }));
+        await expect(service.users()).rejects.toThrow(`Workout logging is unavailable (HTTP ${status})`);
+    }
+});

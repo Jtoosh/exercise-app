@@ -3,20 +3,14 @@ import index from "./index.html";
 
 import exerciseHandler from "../api/exercise.ts";
 
-import { connectDatabase } from "../server/db/database";
-import { PostgresWorkoutRepository } from "../server/repository/WorkoutRepository";
-import { createWorkoutHandler } from "../api/workouts";
-
-const database = process.env.DATABASE_URL ? connectDatabase() : null;
-const workoutHandler = database ? createWorkoutHandler(new PostgresWorkoutRepository(database))
-  : () => Response.json({ error: "Configure DATABASE_URL and run bun run db:migrate to enable workout logging." }, { status: 503 });
+import { workoutEndpoint } from "../server/http/workoutEndpoint";
 
 const server = serve({
   maxRequestBodySize: 1024 * 1024,
   routes: {
     "/api/exercise": exerciseHandler,
-    "/api/users": workoutHandler,
-    "/api/workouts": workoutHandler,
+    "/api/users": workoutEndpoint.fetch,
+    "/api/workouts": workoutEndpoint.fetch,
 
     "/output.css": async () => {
       const file = Bun.file("./dist/output.css");

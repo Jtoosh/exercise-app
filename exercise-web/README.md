@@ -28,6 +28,24 @@ Docker binds the database to localhost and persists its data in the `exercise_db
 `docker compose down` stops it without deleting history. Use your own PostgreSQL URL if preferred.
 Without `DATABASE_URL`, generation still works and the logger explains how to enable persistence.
 
+## Vercel deployment
+
+Set the Vercel project **Root Directory** to `exercise-web`. The checked-in `vercel.json`
+uses the Bun runtime (required by Bun SQL), runs `bun run build`, and serves `dist`.
+It also routes `/exercise-app` and its client-side screens to the app without intercepting
+root `/api/*` requests. Keep the client's API URLs at `/api/users` and `/api/workouts`.
+
+Set `DATABASE_URL` in the project's **Production** environment to a reachable PostgreSQL
+instance. Apply migrations to that database with `bun run db:migrate` from a trusted
+shell configured with the production connection URL, then redeploy. Migrations are
+explicit; they do not run during builds or requests. A local Docker database URL will
+not be reachable from Vercel. Never commit connection strings.
+
+Verify `GET /api/users` returns HTTP 200 with a JSON array, then select/create a profile,
+start the timer, log a set, finish, save, and confirm the workout appears in history.
+A plain-text 404 indicates a missing route; an initialization 503 means database/runtime
+configuration needs attention. Repository failures are recorded in function runtime logs.
+
 ## Recording a workout
 
 On the workout builder, create/select a profile, generate a workout, and click **Start workout timer**.
@@ -57,7 +75,8 @@ and server-side authorization. Database credentials stay on the Bun server.
 - `src/hooks/useWorkoutLog.ts`: shared logging state and presenter integration.
 - `src/presenter/WorkoutLogPresenter.ts`: logging lifecycle with injected service and clock.
 - `src/service/WorkoutLogService.ts`: browser HTTP service.
-- `api/workouts.ts`: validated HTTP handlers with an injected repository.
+- `api/users.ts`, `api/workouts.ts`: Vercel function entry points.
+- `server/http/`: shared HTTP validation and lazy database initialization for Bun and Vercel.
 - `server/repository/WorkoutRepository.ts`: parameterized PostgreSQL queries via Bun SQL.
 - `server/db/`: connection configuration and versioned migrations.
 
