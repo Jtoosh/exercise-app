@@ -1,5 +1,17 @@
-import { test, expect } from "bun:test";
+import { test, expect, beforeAll, spyOn } from "bun:test";
 import handler from "./exercise.ts";
+
+beforeAll(async () => {
+  const catalog = [
+    { id: "press", name: "Press", category: "strength", equipment: "dumbbell", primaryMuscles: ["chest", "biceps"] },
+    { id: "bench", name: "Bench", category: "powerlifting", equipment: "barbell", primaryMuscles: ["chest", "biceps"] },
+    { id: "fly", name: "Fly", category: "strength", equipment: "cable", primaryMuscles: ["chest"] },
+    { id: "jump", name: "Jump", category: "plyometrics", equipment: null, primaryMuscles: ["quadriceps"] },
+  ].map(exercise => ({ ...exercise, instructions: ["Start"], images: [] }));
+  const request = spyOn(globalThis, "fetch").mockResolvedValue(Response.json(catalog));
+  try { await handler(new Request("http://localhost/api/exercise")); }
+  finally { request.mockRestore(); }
+});
 
 test("CDN Proxy returns exercises filtered by muscle", async () => {
   const req = new Request("http://localhost/api/exercise?muscle=chest");
@@ -57,3 +69,21 @@ test("CDN Proxy excludes specified exercise IDs", async () => {
   expect(dataExcluded.some((ex: any) => (ex.id || ex.name).toLowerCase() === excludeId.toLowerCase())).toBe(false);
 }, 10000);
 
+
+for (const category of ["strength", "powerlifting", "strength,powerlifting", "strength&category=powerlifting"]) {
+  test(`category filter supports ${category}`, async () => {
+    const response = await handler(new Request(`http://localhost/api/exercise?muscle=chest&category=${category}`));
+    const exercises = await response.json();
+    expect(exercises.length).toBeGreaterThan(0);
+    const allowed = category.split(/,|&category=/);
+    expect(exercises.every((exercise: any) => allowed.includes(exercise.category))).toBe(true);
+  });
+}
+
+test("any category is unrestricted and an unavailable combination stays empty", async () => {
+  const all = await (await handler(new Request("http://localhost/api/exercise"))).json();
+  const any = await (await handler(new Request("http://localhost/api/exercise?category=any"))).json();
+  expect(any).toEqual(all);
+  const empty = await (await handler(new Request("http://localhost/api/exercise?muscle=chest&category=plyometrics"))).json();
+  expect(empty).toEqual([]);
+});

@@ -18,7 +18,16 @@ export type Muscle =
     | "traps"
     | "triceps";
 
-export type ExerciseType = "strength" | "stretching" | "plyometrics" | "powerlifting" | "cardio" | "";
+export const EXERCISE_CATEGORIES = [
+  "strength", "stretching", "plyometrics", "powerlifting", "cardio", "olympic weightlifting", "strongman",
+] as const;
+export type ExerciseCategory = typeof EXERCISE_CATEGORIES[number];
+export type CategoryFocus = "any" | readonly ExerciseCategory[];
+export type ExerciseType = ExerciseCategory | "";
+
+export function normalizeCategoryFocus(focus: CategoryFocus): CategoryFocus {
+  return focus === "any" || focus.length === 0 ? "any" : [...new Set(focus)];
+}
 
 const CDN_BASE_IMAGE_URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
 
@@ -62,6 +71,10 @@ export class Exercise {
 
   get name(): string {
     return this._name;
+  }
+
+  get category(): ExerciseType {
+    return this._type;
   }
 
   get type(): ExerciseType {

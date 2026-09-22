@@ -172,10 +172,10 @@ export function ExerciseInfo({
                                 {fetchedExercise.difficulty}
                             </span>
                         )}
-                        {fetchedExercise.type && (
+                        {fetchedExercise.category && (
                             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-muted text-muted-foreground border border-border capitalize">
                                 <Layers className="h-3.5 w-3.5" />
-                                {fetchedExercise.type}
+                                {fetchedExercise.category}
                             </span>
                         )}
                     </div>

@@ -1,3 +1,5 @@
+import { CategorySelector } from "./CategorySelector";
+import type { CategoryFocus } from "@/lib/exercise";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { WorkoutOverview } from "./WorkoutOverview";
 import { WorkoutExercise } from "./WorkoutExercise";
@@ -39,6 +41,7 @@ export function WorkoutBuilder() {
     const requestedIndex = Number(searchParams.get("exercise") ?? -1);
     const [swapping, setSwapping] = useState(false);
     const [muscleGroup, setMuscleGroup] = useState<string>("");
+    const [categories, setCategories] = useState<CategoryFocus>("any");
     const [duration, setDuration] = useState<number>(35);
     const [selectedEquipment, setSelectedEquipment] = useState<AvailableEquipment[]>([]);
     const [resistancePreference, setResistancePreference] = useState<"balanced" | "freeweight" | "cable_machine" | "all">("balanced");
@@ -84,6 +87,7 @@ export function WorkoutBuilder() {
         setState({ workout: null, loading: true, error: null });
         try {
             const result = await presenter.buildWorkout(muscleGroup as MuscleGroup, duration, {
+                categories,
                 equipment: selectedEquipment,
                 resistancePreference,
             });
@@ -132,7 +136,7 @@ export function WorkoutBuilder() {
                         <Dumbbell className="h-6 w-6 text-primary" /> Build your workout
                     </h1></CardTitle>
                     <CardDescription>
-                        Customize muscle focus, time, equipment availability, and resistance type.
+                        Customize category and muscle focus, time, equipment availability, and resistance type.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
@@ -176,6 +180,8 @@ export function WorkoutBuilder() {
                             </p>
                         </div>
                     </div>
+
+                    <CategorySelector value={categories} onChange={setCategories} />
 
                     {/* Resistance Distribution Preference */}
                     <div className="flex flex-col gap-2 pt-2 border-t border-border/40">

@@ -1,16 +1,17 @@
 import {ExerciseService} from "@/service/ExerciseService.ts";
 import {type MuscleGroup, Workout} from "@/lib/workout.ts";
-import {Exercise, type Muscle} from "@/lib/exercise.ts";
+import {Exercise, type CategoryFocus, type Muscle} from "@/lib/exercise.ts";
 
 export interface BuildWorkoutOptions {
+    categories?: CategoryFocus;
     equipment?: (string | null)[];
     resistancePreference?: "balanced" | "freeweight" | "cable_machine" | "all";
 }
 
 export class WorkoutBuilderPresenter {
-    private service: ExerciseService;
+    private service: Pick<ExerciseService, "getExerciseByMuscle">;
 
-    constructor(service?: ExerciseService) {
+    constructor(service?: Pick<ExerciseService, "getExerciseByMuscle">) {
         this.service = service || new ExerciseService();
     }
 
@@ -38,6 +39,7 @@ export class WorkoutBuilderPresenter {
 
             try {
                 const exercise = await this.service.getExerciseByMuscle(muscle, {
+                    categories: options?.categories ?? "any",
                     equipment: options?.equipment,
                     resistance: targetResistance,
                     excludeIds: chosenIds,
@@ -49,6 +51,7 @@ export class WorkoutBuilderPresenter {
             } catch (err) {
                 // If target resistance fails, fallback to 'all'
                 const fallbackExercise = await this.service.getExerciseByMuscle(muscle, {
+                    categories: options?.categories ?? "any",
                     equipment: options?.equipment,
                     resistance: "all",
                     excludeIds: chosenIds,
@@ -60,7 +63,7 @@ export class WorkoutBuilderPresenter {
             }
         }
 
-        return new Workout("strength", muscleGroup, exercises);
+        return new Workout(options?.categories ?? "any", muscleGroup, exercises);
     }
 
     public async swapExercise(
@@ -81,6 +84,7 @@ export class WorkoutBuilderPresenter {
             .filter(Boolean);
 
         const newExercise = await this.service.getExerciseByMuscle(muscle, {
+            categories: currentWorkout.categories,
             equipment: options?.equipment,
             resistance: options?.resistancePreference === "all" ? "all" : undefined,
             excludeIds: existingIds,

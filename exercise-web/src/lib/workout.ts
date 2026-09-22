@@ -1,26 +1,29 @@
-import  { type Exercise, type ExerciseType } from "./exercise";
+import { normalizeCategoryFocus, type CategoryFocus, type Exercise, type ExerciseType } from "./exercise";
 import type { Muscle } from "./exercise";
 
 export type MuscleGroup = "push" | "pull" | "legs";
 export type WorkoutFocus = Muscle[] | MuscleGroup
 
 export class Workout {
-  private _type: ExerciseType;
+  private readonly _categories: CategoryFocus;
   private _focus: WorkoutFocus;
   private _duration = 0;
   private _exercises: Exercise[];
   private _completedIndexes: Set<number>;
 
-  constructor(type: ExerciseType, focus: WorkoutFocus, exercises: Exercise[], completedIndexes: Set<number> = new Set()) {
-    this._type = type;
+  constructor(categories: CategoryFocus | ExerciseType, focus: WorkoutFocus, exercises: Exercise[], completedIndexes: Set<number> = new Set()) {
+    const focusCategories = typeof categories === "string"
+      ? categories === "any" || categories === "" ? "any" : [categories]
+      : categories;
+    this._categories = normalizeCategoryFocus(focusCategories);
     this._focus = focus;
     this._exercises = exercises;
     this._duration = 7.5 * exercises.length;
     this._completedIndexes = completedIndexes;
   }
 
-  get type(): ExerciseType {
-    return this._type;
+  get categories(): CategoryFocus {
+    return this._categories === "any" ? "any" : [...this._categories];
   }
 
   get focus(): WorkoutFocus {
@@ -50,7 +53,7 @@ export class Workout {
     } else {
       nextCompleted.add(index);
     }
-    return new Workout(this._type, this._focus, [...this._exercises], nextCompleted);
+    return new Workout(this._categories, this._focus, [...this._exercises], nextCompleted);
   }
 
   public completeExercise(index: number): Workout {
@@ -72,7 +75,7 @@ export class Workout {
     }
     const updatedExercises = [...this._exercises];
     updatedExercises[index] = newExercise;
-    return new Workout(this._type, this._focus, updatedExercises, new Set(this._completedIndexes));
+    return new Workout(this._categories, this._focus, updatedExercises, new Set(this._completedIndexes));
   }
 
   public static decodeMuscleGroup(muscleGroup: MuscleGroup): Muscle[] {

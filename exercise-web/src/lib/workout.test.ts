@@ -30,3 +30,12 @@ test("the last completion ends the flow with no next circuit", () => {
     expect(completed.completedIndexes.size).toBe(3);
     expect(new Workout("strength", "legs", []).nextIncompleteIndex(-1)).toBeNull();
 });
+
+test("category focus normalizes empty and duplicate selections and owns its snapshot", () => {
+    expect(new Workout([], "legs", []).categories).toBe("any");
+    expect(new Workout("strength", "legs", []).categories).toEqual(["strength"]);
+    const categories: ("strength" | "plyometrics")[] = ["strength", "strength"];
+    const workout = new Workout(categories, "legs", []);
+    categories.push("plyometrics");
+    expect(workout.categories).toEqual(["strength"]);
+});

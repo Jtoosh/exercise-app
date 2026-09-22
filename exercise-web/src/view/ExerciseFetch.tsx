@@ -1,3 +1,5 @@
+import { CategorySelector } from "./CategorySelector";
+import type { CategoryFocus } from "@/lib/exercise";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import {
@@ -17,12 +19,20 @@ import {ExerciseFetchPresenter} from "@/presenter/ExerciseFetchPresenter.ts";
 
 export function ExerciseFetch() {
   const presenter = new ExerciseFetchPresenter()
+  const [categories, setCategories] = useState<CategoryFocus>("any");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [muscleGroup, setMuscleGroup] = useState("");
   const [fetchedExercise, setFetchedExercise] = useState<Exercise | null>(null)
 
-  const getExerciseByMuscle = async (muscle: String): Promise<void> => {
-    const exercise = await presenter.getExerciseByMuscle(muscle);
-    setFetchedExercise(exercise!)
+  const getExerciseByMuscle = async (muscle: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      setFetchedExercise(await presenter.getExerciseByMuscle(muscle, categories));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Could not fetch an exercise.");
+    } finally { setLoading(false); }
   }
 
   return (
@@ -58,7 +68,9 @@ export function ExerciseFetch() {
           </SelectContent>
         </Select>
 
-        <Button className="my-4 sm:mx-4" onClick={() => getExerciseByMuscle(muscleGroup)}>Get Workout</Button>
+        <CategorySelector value={categories} onChange={setCategories} />
+        {error && <p role="alert">{error}</p>}
+        <Button disabled={loading || !muscleGroup} className="my-4 sm:mx-4" onClick={() => getExerciseByMuscle(muscleGroup)}>{loading ? "Loading..." : "Get Exercise"}</Button>
         <ExerciseInfo fetchedExercise={fetchedExercise}></ExerciseInfo>
       </CardContent>
     </Card>

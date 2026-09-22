@@ -61,3 +61,31 @@ test("swapExercise replaces target exercise without duplicate IDs", async () => 
     expect(updatedWorkout.exercises.length).toBe(2);
     expect(updatedWorkout.exercises[0].name).not.toBe(oldExercise.name);
 });
+
+test("mixed category focus survives resistance retry, completion, and swap", async () => {
+    const service = new MockExerciseService();
+    const original = service.getExerciseByMuscle;
+    service.getExerciseByMuscle = async (muscle, options) => {
+        if (options.resistance === "cable_machine") {
+            service.calls.push({ muscle, options });
+            throw new Error("No cable matches");
+        }
+        return original(muscle, options);
+    };
+    const presenter = new WorkoutBuilderPresenter(service);
+    const categories = ["strength", "powerlifting"] as const;
+    const workout = await presenter.buildWorkout("legs", 15, { categories });
+    expect(workout.categories).toEqual(categories);
+    expect(service.calls.every(call => JSON.stringify(call.options.categories) === JSON.stringify(categories))).toBe(true);
+    const updated = await presenter.swapExercise(workout.completeExercise(0), 1, { categories: ["cardio"] });
+    expect(updated.categories).toEqual(categories);
+    expect(updated.isCompleted(0)).toBe(true);
+    expect(service.calls.at(-1).options.categories).toEqual(categories);
+});
+
+test("unspecified category focus defaults to any", async () => {
+    const service = new MockExerciseService();
+    const workout = await new WorkoutBuilderPresenter(service).buildWorkout("legs", 15);
+    expect(workout.categories).toBe("any");
+    expect(service.calls.every(call => call.options.categories === "any")).toBe(true);
+});

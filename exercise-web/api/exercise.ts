@@ -32,6 +32,10 @@ export default async function handler(req: Request) {
     const url = new URL(req.url);
     const muscle = url.searchParams.get("muscle")?.toLowerCase();
 
+    const categories = new Set(url.searchParams.getAll("category")
+        .flatMap(value => value.split(","))
+        .map(value => value.trim().toLowerCase()).filter(Boolean));
+
     // Equipment filtering (supports comma-separated or multiple equipment params)
     const equipmentParams = url.searchParams.getAll("equipment");
     const allowedEquipment = new Set<string>();
@@ -57,6 +61,10 @@ export default async function handler(req: Request) {
     try {
         const catalog = await getCatalog();
         let filtered = catalog;
+
+        if (categories.size > 0 && !categories.has("any")) {
+            filtered = filtered.filter(exercise => categories.has(exercise.category));
+        }
 
         if (muscle) {
             filtered = filtered.filter((ex) => {

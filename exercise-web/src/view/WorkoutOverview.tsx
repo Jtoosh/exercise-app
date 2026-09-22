@@ -14,6 +14,7 @@ export function WorkoutOverview({ workout, onOpenExercise }: {
                 <div className="space-y-2">
                     <p className="text-xs uppercase tracking-widest font-semibold text-primary">Your session</p>
                     <h1 tabIndex={-1} data-screen-heading className="text-3xl font-semibold tracking-tight capitalize">{Array.isArray(workout.focus) ? workout.focus.join(", ") : workout.focus} workout</h1>
+                    <p className="text-sm capitalize text-muted-foreground">{workout.categories === "any" ? "Any category" : workout.categories.join(" · ")}</p>
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1.5"><Clock className="size-4" />{workout.duration} min</span>
                         <span className="flex items-center gap-1.5"><ListChecks className="size-4" />{total} circuits</span>
@@ -37,7 +38,7 @@ export function WorkoutOverview({ workout, onOpenExercise }: {
                         </span>
                         <span className="min-w-0 flex-1 space-y-1">
                             <span className="block font-semibold">{exercise.name}</span>
-                            <span className="block text-xs text-muted-foreground capitalize">{[exercise.muscle, ...exercise.equipment].filter(Boolean).join(" · ")}</span>
+                            <span className="block text-xs text-muted-foreground capitalize">{[exercise.category, exercise.muscle, ...exercise.equipment].filter(Boolean).join(" · ")}</span>
                             {workout.isCompleted(index) && <span className="block text-xs font-medium text-primary">Completed</span>}
                         </span>
                         <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
